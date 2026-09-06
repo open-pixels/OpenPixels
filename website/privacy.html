@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Privacy policy &mdash; OpenPixels</title>
+<meta name="description" content="OpenPixels' privacy policy: what the app collects (nothing), what is stored on your own device, and the one thing a web server unavoidably sees." />
+<meta name="robots" content="index, follow" />
+<meta name="theme-color" content="#0e0f11" />
+<link rel="canonical" href="https://openpixels.app/privacy.html" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+<link rel="apple-touch-icon" href="/icon-180.png" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Privacy policy — OpenPixels",
+  "url": "https://openpixels.app/privacy.html",
+  "description": "OpenPixels processes every photo on the user's own device. It has no account, no analytics and no server that accepts an image.",
+  "isPartOf": { "@type": "WebSite", "name": "OpenPixels", "url": "https://openpixels.app/" },
+  "dateModified": "2026-09-06"
+}
+</script>
+<style>
+  :root {
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --border: rgba(255,255,255,0.11);
+    --text: #f4f3f1;
+    --muted: rgba(244,243,241,0.68);
+    --faint: rgba(244,243,241,0.45);
+    --accent: #f2a93b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.62;
+  }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    max-width: 760px; margin: 0 auto; padding: 30px 24px 0; gap: 16px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 15px; font-weight: 650; letter-spacing: -0.01em;
+    text-decoration: none; color: var(--text);
+  }
+  .brand img { width: 22px; height: 22px; border-radius: 6px; }
+  .brand .muted { color: var(--faint); font-weight: 500; }
+  header a.back { color: var(--muted); font-size: 13px; text-decoration: none; white-space: nowrap; }
+  header a.back:hover { color: var(--text); }
+  main { max-width: 760px; margin: 0 auto; padding: 46px 24px 90px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.085em; text-transform: uppercase;
+    color: var(--accent); font-weight: 650; margin-bottom: 12px;
+  }
+  h1 { font-size: clamp(28px, 5vw, 34px); letter-spacing: -0.025em; margin: 0 0 8px; }
+  .updated { color: var(--faint); font-size: 13px; margin: 0 0 36px; }
+  h2 { font-size: 19px; letter-spacing: -0.012em; margin: 38px 0 12px; }
+  p { color: var(--muted); font-size: 15px; margin: 0 0 14px; }
+  ul { color: var(--muted); font-size: 15px; padding-left: 20px; margin: 0 0 14px; }
+  li { margin-bottom: 6px; }
+  strong { color: var(--text); font-weight: 640; }
+  code {
+    background: rgba(255,255,255,0.08); padding: 1px 6px; border-radius: 4px;
+    font-size: 0.9em; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 10px;
+    padding: 18px 20px; margin: 24px 0;
+  }
+  .card p:last-child { margin-bottom: 0; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  footer {
+    max-width: 760px; margin: 0 auto; padding: 24px 24px 64px;
+    color: var(--faint); font-size: 13px; border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="/">
+    <img src="/favicon.svg" alt="" width="22" height="22" />
+    <span><span class="muted">Open</span>Pixels</span>
+  </a>
+  <a class="back" href="/">&larr; Back to openpixels.app</a>
+</header>
+<main>
+  <div class="eyebrow">Privacy</div>
+  <h1>Privacy policy</h1>
+  <p class="updated">Last updated 6 September 2026</p>
+
+  <p>OpenPixels is a web app that enlarges, sharpens, denoises, colourises and cuts the background out of photographs. This page describes exactly what it collects, what it stores, and what it never touches. OpenPixels is open source, so none of this has to be taken on trust &mdash; the source can be read and the claims checked against it.</p>
+
+  <div class="card">
+    <p><strong>The short version:</strong> your photo is decoded, processed and saved inside your own browser tab. It is never uploaded, because <strong>there is no server anywhere in this product that accepts an image</strong>. There is no account, no analytics and no tracking of any kind. The only network activity is downloading the app and its AI models &mdash; and after your first visit, not even that.</p>
+  </div>
+
+  <h2>What OpenPixels never collects</h2>
+  <ul>
+    <li><strong>Your photographs.</strong> They are read from your device into the browser tab, processed there, and written back to your device. None of it is transmitted.</li>
+    <li><strong>Anything derived from your photographs</strong> &mdash; no thumbnails, no faces, no embeddings, no quality measurements. The numbers the app shows you are computed in the tab and discarded when you close it.</li>
+    <li><strong>Analytics, telemetry, crash reports or usage statistics.</strong> There is no analytics script on the site or in the app.</li>
+    <li><strong>An account.</strong> There is no sign-in, no email address, no profile, and nothing to create one with.</li>
+    <li><strong>Advertising identifiers.</strong> OpenPixels shows no ads and contains no ad-tracking code.</li>
+    <li><strong>Cookies for tracking.</strong> OpenPixels sets no tracking cookies. It sets no cookies at all.</li>
+  </ul>
+
+  <h2>Why "we don't look at your photos" is a fact here, not a promise</h2>
+  <p>Most privacy policies ask you to trust a company not to misuse data it holds. This one does not, because the data is never held. The AI models run inside your browser through WebAssembly and WebGPU, on your own processor. A tool that charges for this uploads your photo and pays for the GPU that handles it; OpenPixels has no such server, which is both why it is free and why there is nothing here to collect.</p>
+  <p>You can verify this the same way anyone can: open your browser's developer tools, switch to the Network tab, and enhance a photo. After the model files have loaded, you will see no further requests. Or simply disconnect from the network &mdash; the app keeps working.</p>
+
+  <h2>What is stored, on your device only</h2>
+  <p>These live in your browser's own storage (Cache Storage, IndexedDB and <code>localStorage</code>) and are never transmitted:</p>
+  <ul>
+    <li><strong>The AI model files</strong> &mdash; downloaded once, on first use of the feature that needs them, and kept so the app works offline afterwards. The <strong>Downloads</strong> page lists every model stored on your device, with its size, and lets you delete any or all of them.</li>
+    <li><strong>The app itself</strong> &mdash; cached by a service worker so it opens with no connection.</li>
+    <li><strong>Your settings</strong> &mdash; the options you last used and your language choice.</li>
+  </ul>
+  <p>None of this includes your photographs; finished results are saved only where you choose to save them. Clearing site data for openpixels.app in your browser settings removes all of it.</p>
+
+  <h2>The one thing a web server unavoidably sees</h2>
+  <p>To open OpenPixels at all, your browser has to request the page and the model files from our web server, and any web server necessarily sees the requests made to it. Ours records standard access log lines &mdash; the IP address, the time, the file requested, and the browser's user-agent string &mdash; which is what makes it possible to tell whether the site is up and whether a file is being served correctly.</p>
+  <p>These logs contain no photograph and nothing derived from one, because no photograph is ever sent. They are not used to build a profile, are not combined with anything else, are not sold or shared, and are rotated and deleted on a short cycle. This is the honest limit of the &ldquo;nothing leaves your device&rdquo; claim: the photo does not, but the request for the page does.</p>
+
+  <h2>No payments, no sign-in providers, no third parties</h2>
+  <p>OpenPixels has no paid tier, so there is no payment processor, no card number and no billing record. There is no Google sign-in, no wallet connection and no third-party identity provider, because there is nothing to sign in to.</p>
+  <p>The site and the app load no fonts, scripts, images or stylesheets from any other origin. There is no CDN, no embedded video, no social widget and no comment system. The server is configured with a Content Security Policy that permits no third-party origins at all, so a future dependency that tried to phone home would fail loudly rather than quietly succeed.</p>
+
+  <h2>Where the model files come from</h2>
+  <p>The models are Real-ESRGAN, GFPGAN, DeOldify, U&sup2;-Net and YuNet, each under a licence that permits this use. They are served from openpixels.app, not from a third party, so using OpenPixels does not expose you to anyone else's servers. Every file is pinned by its sha256 checksum and the exact steps that produced it are published, so a copy can be rebuilt from the upstream weights and compared byte for byte.</p>
+
+  <h2>Children's privacy</h2>
+  <p>OpenPixels is not directed at children under 13. Since it collects no personal data from anyone, it collects none from them either.</p>
+
+  <h2>Your rights</h2>
+  <p>Regulations such as the GDPR and the CCPA give you rights to access, correct, export and delete the personal data a service holds about you. OpenPixels holds none, so there is nothing to access, export or delete &mdash; and no request you could make that would return anything. Data stored on your own device is under your control at all times, through the Downloads page or your browser's site-data settings.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>If this policy changes, the date at the top of this page will be updated. If OpenPixels ever gained a feature that sent anything anywhere, that would be described here before the feature shipped &mdash; not after.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy: <a href="mailto:openpixelsapp@gmail.com">openpixelsapp@gmail.com</a></p>
+</main>
+<footer>
+  OpenPixels &mdash; MIT or Apache-2.0, at your option. <a href="/">openpixels.app</a>
+</footer>
+</body>
+</html>

@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OpenPixels &mdash; free AI photo upscaler that runs in your browser</title>
+<meta name="description" content="Upscale photos up to 8x, remove noise and JPEG artefacts, rebuild faces, colourise black-and-white photographs and cut out backgrounds. Free with no account and no limit, and your photo is never uploaded &mdash; every model runs on your own device." />
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+<meta name="theme-color" content="#0e0f11" />
+
+<link rel="canonical" href="https://openpixels.app/" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" type="image/png" sizes="16x16" href="/icon-16.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+<link rel="icon" type="image/png" sizes="48x48" href="/icon-48.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+<link rel="apple-touch-icon" href="/icon-180.png" />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="OpenPixels" />
+<meta property="og:title" content="OpenPixels — free AI photo upscaler that runs in your browser" />
+<meta property="og:description" content="Upscale up to 8x, clear noise, rebuild faces, colourise old photographs. Free, no account, no limit — and nothing is uploaded, because there is no server." />
+<meta property="og:url" content="https://openpixels.app/" />
+<meta property="og:image" content="https://openpixels.app/og-image.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="OpenPixels — a before and after comparison of an enlarged photograph." />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="OpenPixels — free AI photo upscaler that runs in your browser" />
+<meta name="twitter:description" content="Upscale up to 8x, clear noise, rebuild faces, colourise old photographs. Free, no account, nothing uploaded." />
+<meta name="twitter:image" content="https://openpixels.app/og-image.jpg" />
+
+<!-- Structured data. The FAQ block is a verbatim duplicate of the visible
+     questions further down the page — markup describing what is on the
+     page, not extra content hidden from readers. It is also the shape AI
+     answer engines extract most reliably, which is why the visible copy is
+     written as short factual answers in the first place. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "OpenPixels",
+  "url": "https://openpixels.app/",
+  "description": "A free photo upscaler and restorer that runs entirely in the browser."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "OpenPixels",
+  "applicationCategory": "MultimediaApplication",
+  "applicationSubCategory": "Photo enhancement",
+  "operatingSystem": "Any — runs in Chrome, Edge, Firefox or Safari",
+  "browserRequirements": "A modern browser. WebGPU is used when available and the app falls back to WebAssembly when it is not.",
+  "url": "https://openpixels.app/",
+  "installUrl": "https://app.openpixels.app/",
+  "description": "A photo upscaler and restorer that runs entirely on the user's own device. Enlarges images 2x, 4x or 8x, removes noise and JPEG compression artefacts, rebuilds faces, colourises black-and-white photographs and removes backgrounds. Nothing is uploaded and every feature is free.",
+  "license": "https://opensource.org/licenses/MIT",
+  "softwareVersion": "0.1.0",
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "description": "Every feature, with no account, no trial, no watermark and no limit on how many photos you process."
+  },
+  "featureList": [
+    "Upscale 2x, 4x or 8x",
+    "Clean up an image at its original size",
+    "Remove noise, grain and JPEG compression artefacts",
+    "Rebuild faces in scans and old photographs",
+    "Colourise black-and-white photographs",
+    "Remove or replace a background",
+    "A separate model for drawings and anime",
+    "Batch processing with a ZIP download and a CSV of measurements",
+    "A before/after slider with measured quality numbers",
+    "Works offline after the first visit"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is OpenPixels really free?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, entirely. There is no paid tier, no account, no trial, no watermark, no credits and no limit on how many photos you process. Your photo is processed by your own device, so there is no per-photo cost to pass on." }
+    },
+    {
+      "@type": "Question",
+      "name": "Are my photos uploaded anywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Your photo is processed inside your browser tab and never leaves your device. There is no server to upload it to. The only things the page downloads are the app itself and the AI model files, and after the first visit it downloads nothing at all." }
+    },
+    {
+      "@type": "Question",
+      "name": "How much can OpenPixels enlarge a photo?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Up to 8x. You can also choose 2x, 4x, or keep the original size and just clean the image up. Very large results can exceed what a browser tab can hold, and the app tells you when it has capped the size rather than failing." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does OpenPixels work offline?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is a progressive web app: after the first visit the app works with no network connection. Each AI model is downloaded once, on first use, and cached; the Downloads page lists everything stored and lets you delete any of it." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need an account to use OpenPixels?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. There is no sign-in anywhere in the product, because there is no server that would have anything to sign in to." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can OpenPixels restore old and blurry family photographs?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. It finds faces, rebuilds them at 512x512 and pastes the result back through a feathered mask, which is the case scans and old family photographs need most. It can also colourise a black-and-white photograph, taking only the colour from the model and keeping the photograph's own lightness." }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I know the detail is real and not invented?",
+      "acceptedAnswer": { "@type": "Answer", "text": "OpenPixels shrinks its own result back down to the original size and compares it with the photo you started with, then shows you the outcome. If the shrunk result still matches your original, the detail was enlarged rather than invented. It also reports how much sharper the result is and how much noise was removed. Of the twelve products surveyed before this one was built, none showed either measurement." }
+    },
+    {
+      "@type": "Question",
+      "name": "What can OpenPixels not do?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It cannot invent detail that was never captured — nothing can. It also deliberately omits AI portrait generation, the feature that turns a photo into a stylised avatar, because that cannot run on your device and would require a server, a price and an account." }
+    },
+    {
+      "@type": "Question",
+      "name": "Which file formats does OpenPixels support?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Any still image your browser can decode, including JPEG, PNG and WebP. Results are saved as PNG when they carry transparency — a removed background, for example — and as JPEG or PNG otherwise." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is OpenPixels open source?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, under MIT or Apache-2.0 at your option. That includes the exact steps that produced each model file and their sha256 checksums, so the models can be rebuilt from the published upstream weights and compared byte for byte." }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    --bg: #0e0f11;
+    --bg-2: #131519;
+    --surface: #16181c;
+    --surface-2: #1c1f24;
+    --border: rgba(255,255,255,0.10);
+    --border-2: rgba(255,255,255,0.16);
+    --text: #f4f3f1;
+    --muted: rgba(244,243,241,0.68);
+    --faint: rgba(244,243,241,0.45);
+    --accent: #f2a93b;
+    --accent-ink: #1a1204;
+    --good: #4ade80;
+    --radius: 12px;
+    --w: 1080px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+    overflow-x: hidden;
+  }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  .wrap { max-width: var(--w); margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- header ---------- */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(14,15,17,0.82);
+    backdrop-filter: saturate(160%) blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-size: 15.5px; font-weight: 650; letter-spacing: -0.01em; color: var(--text); text-decoration: none; }
+  .brand img { width: 24px; height: 24px; border-radius: 7px; }
+  .brand .muted { color: var(--faint); font-weight: 500; }
+  nav.links { display: flex; align-items: center; gap: 22px; }
+  nav.links a { color: var(--muted); font-size: 14px; text-decoration: none; }
+  nav.links a:hover { color: var(--text); }
+  @media (max-width: 760px) { nav.links { display: none; } }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border-radius: 9px; padding: 10px 18px; font-size: 14.5px; font-weight: 600;
+    text-decoration: none; border: 1px solid transparent; white-space: nowrap;
+    transition: transform .08s ease, background .15s ease, border-color .15s ease;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { background: #ffbd52; }
+  .btn-ghost { background: transparent; color: var(--text); border-color: var(--border-2); }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.34); background: rgba(255,255,255,0.04); }
+  .btn-lg { padding: 14px 26px; font-size: 16px; border-radius: 11px; }
+
+  /* ---------- hero ---------- */
+  .hero { padding: 76px 0 8px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--accent); font-weight: 650; margin-bottom: 18px;
+  }
+  .eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  h1 {
+    font-size: clamp(34px, 6.2vw, 60px); line-height: 1.06;
+    letter-spacing: -0.033em; font-weight: 700; margin: 0 0 22px; max-width: 17ch;
+  }
+  h1 .hl { color: var(--accent); }
+  .lede { font-size: clamp(17px, 2.1vw, 20px); color: var(--muted); max-width: 60ch; margin: 0 0 30px; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
+  .trust { display: flex; flex-wrap: wrap; gap: 8px 20px; list-style: none; padding: 0; margin: 0 0 8px; }
+  .trust li { display: flex; align-items: center; gap: 7px; font-size: 13.5px; color: var(--faint); }
+  .tick { width: 15px; height: 15px; flex: none; color: var(--good); }
+
+  /* ---------- section furniture ---------- */
+  section { padding: 74px 0; }
+  section + section { border-top: 1px solid var(--border); }
+  h2 { font-size: clamp(25px, 3.6vw, 36px); line-height: 1.14; letter-spacing: -0.025em; margin: 0 0 14px; max-width: 22ch; }
+  .sub { color: var(--muted); font-size: 17px; max-width: 62ch; margin: 0 0 34px; }
+  .sub:last-child { margin-bottom: 0; }
+
+  /* ---------- compare slider ---------- */
+  .compare-shell { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 40px; align-items: center; }
+  @media (max-width: 880px) { .compare-shell { grid-template-columns: 1fr; gap: 28px; } }
+  .compare {
+    position: relative; width: 100%; aspect-ratio: 576 / 720; max-width: 460px;
+    border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border);
+    touch-action: pan-y; cursor: ew-resize; user-select: none; background: #000;
+  }
+  .compare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .compare .clip { position: absolute; inset: 0; width: 50%; overflow: hidden; }
+  .compare .clip img { width: var(--cw, 460px); max-width: none; }
+  .handle {
+    position: absolute; top: 0; bottom: 0; left: 50%; width: 2px;
+    background: rgba(255,255,255,0.92); transform: translateX(-1px); pointer-events: none;
+  }
+  .knob {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.95);
+    display: grid; place-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.45); pointer-events: none;
+  }
+  .knob svg { width: 19px; height: 19px; color: #111; }
+  .tag {
+    position: absolute; bottom: 12px; font-size: 11.5px; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; padding: 5px 10px; border-radius: 6px;
+    background: rgba(0,0,0,0.62); color: #fff; backdrop-filter: blur(4px); pointer-events: none;
+  }
+  .tag.l { left: 12px; } .tag.r { right: 12px; }
+  .compare:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .measure { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0 0 22px; }
+  .metric { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 15px 16px; }
+  .metric .n { font-size: 25px; font-weight: 700; letter-spacing: -0.02em; }
+  .metric .n.ok { color: var(--good); font-size: 19px; }
+  .metric .l { font-size: 12.5px; color: var(--faint); margin-top: 2px; }
+  .note { font-size: 13.5px; color: var(--faint); line-height: 1.55; }
+
+  /* ---------- feature grid ---------- */
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+  .card h3 { font-size: 16.5px; margin: 0 0 7px; letter-spacing: -0.01em; }
+  .card p { font-size: 14.5px; color: var(--muted); margin: 0; }
+  .ico { width: 30px; height: 30px; border-radius: 8px; background: rgba(242,169,59,0.13); color: var(--accent); display: grid; place-items: center; margin-bottom: 14px; }
+  .ico svg { width: 17px; height: 17px; }
+
+  /* ---------- split ---------- */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 52px; align-items: center; }
+  @media (max-width: 880px) { .split { grid-template-columns: 1fr; gap: 32px; } }
+  .shot { border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; background: var(--surface); }
+  .shot img { width: 100%; height: auto; }
+  .phone { max-width: 300px; margin: 0 auto; }
+
+  /* ---------- table ---------- */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+  table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14.5px; }
+  th, td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  thead th { font-size: 12px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--faint); font-weight: 650; background: var(--bg-2); }
+  tbody tr:last-child td { border-bottom: none; }
+  td:first-child { color: var(--muted); }
+  .yes { color: var(--good); font-weight: 600; }
+  .no { color: var(--faint); }
+
+  /* ---------- callout ---------- */
+  .callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; padding: 22px 24px; }
+  .callout p { margin: 0 0 12px; color: var(--muted); font-size: 15.5px; }
+  .callout p:last-child { margin: 0; }
+  .callout strong { color: var(--text); }
+
+  /* ---------- faq ---------- */
+  .faq { display: grid; gap: 10px; }
+  details { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0 20px; }
+  details[open] { background: var(--surface-2); }
+  summary { cursor: pointer; padding: 16px 0; font-weight: 600; font-size: 15.5px; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: var(--accent); font-size: 20px; font-weight: 400; flex: none; }
+  details[open] summary::after { content: "\2212"; }
+  details p { margin: 0 0 16px; color: var(--muted); font-size: 15px; }
+
+  /* ---------- footer ---------- */
+  footer { border-top: 1px solid var(--border); padding: 44px 0 60px; }
+  .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; }
+  .foot-col h4 { font-size: 12px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--faint); margin: 0 0 12px; font-weight: 650; }
+  .foot-col a, .foot-col span { display: block; color: var(--muted); font-size: 14px; text-decoration: none; margin-bottom: 8px; }
+  .foot-col a:hover { color: var(--text); }
+  .colophon { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--border); color: var(--faint); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="/">
+      <img src="/favicon.svg" alt="" width="24" height="24" />
+      <span><span class="muted">Open</span>Pixels</span>
+    </a>
+    <nav class="links">
+      <a href="#what">What it does</a>
+      <a href="#proof">The proof</a>
+      <a href="#free">Why it's free</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn btn-primary" href="https://app.openpixels.app/">Open the app</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ hero ============ -->
+  <div class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Free forever &middot; nothing uploaded</div>
+      <h1>Make a blurry photo <span class="hl">sharp</span>, in your browser.</h1>
+      <p class="lede">
+        Enlarge up to 8&times;, clear away noise and JPEG artefacts, rebuild faces that
+        have gone soft, colourise a black-and-white photograph, or cut out the
+        background. Every feature is free with no account and no limit &mdash; and your
+        photo never leaves your device, because there is no server to send it to.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary btn-lg" href="https://app.openpixels.app/">Open OpenPixels &rarr;</a>
+        <a class="btn btn-ghost btn-lg" href="#proof">See a real result</a>
+      </div>
+      <ul class="trust">
+        <li><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> No account</li>
+        <li><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> No upload</li>
+        <li><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> No watermark</li>
+        <li><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> No limit</li>
+        <li><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Works offline</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ proof ============ -->
+  <section id="proof">
+    <div class="wrap">
+      <div class="compare-shell">
+        <div>
+          <div class="compare" id="cmp" role="slider" tabindex="0"
+               aria-label="Before and after comparison"
+               aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="50% revealed">
+            <img src="/after.jpg" width="576" height="720" alt="The same image after OpenPixels enlarged it: the ridgeline, the trees and the small caption text are all legible." />
+            <div class="clip" id="clip">
+              <img src="/before.jpg" width="576" height="720" alt="A small, heavily compressed image before enhancement: soft edges and unreadable caption text." />
+            </div>
+            <div class="handle" id="handle"><span class="knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/><polyline points="9 6 15 12 9 18"/></svg></span></div>
+            <span class="tag l">Before</span>
+            <span class="tag r">After</span>
+          </div>
+        </div>
+        <div>
+          <div class="eyebrow">The proof</div>
+          <h2>It tells you what actually changed.</h2>
+          <p class="sub">
+            Every tool in this category shows you a result and asks you to take its
+            word for it. OpenPixels measures the result and puts the numbers on
+            screen &mdash; including the one that matters most: whether the detail was
+            <em>enlarged</em> or <em>invented</em>.
+          </p>
+          <div class="measure">
+            <div class="metric"><div class="n">3.7&times;</div><div class="l">Sharper than the original</div></div>
+            <div class="metric"><div class="n">576 &times; 720</div><div class="l">From 288 &times; 360</div></div>
+            <div class="metric"><div class="n ok">Faithful &check;</div><div class="l">Shrunk back down, it still matches</div></div>
+            <div class="metric"><div class="n">0</div><div class="l">Bytes uploaded</div></div>
+          </div>
+          <p class="note">
+            A real run, not a mock-up. The source is a test image drawn at
+            1152&nbsp;&times;&nbsp;1440, thrown away to 288&nbsp;&times;&nbsp;360 as a
+            low-quality JPEG, then enlarged 2&times; by OpenPixels in an ordinary
+            browser tab. The figures above are the ones the app itself reported on
+            that run. Drag the slider, or use the arrow keys.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ features ============ -->
+  <section id="what">
+    <div class="wrap">
+      <div class="eyebrow">What it does</div>
+      <h2>Nine models, one page, none of them on a server.</h2>
+      <p class="sub">
+        Pick a photo and OpenPixels chooses the right model for it. Each one is
+        downloaded once, on first use, and then works with no network at all.
+      </p>
+      <div class="grid">
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
+          <h3>Enlarge up to 8&times;</h3>
+          <p>2&times;, 4&times; or 8&times; &mdash; or keep the original size and just clean it up. Old phone pictures, scans and screenshots are what it handles best.</p>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div>
+          <h3>Clear noise and artefacts</h3>
+          <p>Three strengths, including the blocky edges left by heavy compression &mdash; the damage a photo picks up going through a messaging app.</p>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <h3>Rebuild faces</h3>
+          <p>Faces are found, restored at 512&nbsp;&times;&nbsp;512 and pasted back through a feathered mask &mdash; the case old family photographs need most.</p>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="13" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="10" cy="19" r="2.5"/><path d="M12 2a10 10 0 1 0 0 20c1 0 1.5-.6 1.5-1.3 0-1.4-1.6-1.6-1.6-3.2 0-1 .8-1.8 1.8-1.8H16a6 6 0 0 0 6-6c0-4.4-4.5-7.7-10-7.7z"/></svg></div>
+          <h3>Colourise old photographs</h3>
+          <p>Only the colour comes from the model; the photograph keeps its own lightness. It warns you before colourising something that already has colour.</p>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4"/><path d="M15 3h4a2 2 0 0 1 2 2v4"/><path d="M9 21H5a2 2 0 0 1-2-2v-4"/><path d="M15 21h4a2 2 0 0 0 2-2v-4"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <h3>Remove the background</h3>
+          <p>Cut it out entirely, make it white, or pick a colour. Cut-outs save as PNG so the transparency survives.</p>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+          <h3>A whole folder at once</h3>
+          <p>Batch processing with no limit, a ZIP of the results, and a CSV of the measurements for every photo in the run.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ why free ============ -->
+  <section id="free">
+    <div class="wrap split">
+      <div>
+        <div class="eyebrow">Why it's free</div>
+        <h2>There is no bill to pass on to you.</h2>
+        <p class="sub">
+          Tools that charge for this upload your photo and pay for the GPU that
+          handles it. That server bill is what a subscription covers. OpenPixels
+          has no such bill, because the work happens on the device already in your
+          hand &mdash; so there is nothing to charge you for, and no tier to withhold.
+        </p>
+        <div class="callout">
+          <p><strong>This is also why the feature list stops where it does.</strong>
+          AI portrait generation &mdash; the feature that turns your photo into a
+          stylised avatar &mdash; is deliberately absent. It cannot run on your
+          device, so it would need a server, a price and an account.</p>
+          <p>Making your photo clearer and generating a new one are different jobs.
+          OpenPixels only does the first.</p>
+        </div>
+      </div>
+      <div class="shot phone">
+        <img src="/shot-home.png" width="520" height="1127" loading="lazy"
+             alt="The OpenPixels home screen on a phone, listing its three promises: free, your photo stays here, and see what changed." />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ comparison ============ -->
+  <section id="compare">
+    <div class="wrap">
+      <div class="eyebrow">How it compares</div>
+      <h2>The difference a local model makes.</h2>
+      <p class="sub">
+        Not a knock on the cloud tools &mdash; these are the direct consequences of
+        where the model runs. A server that processes your photo has costs to
+        recover and a copy of your photo to store; a browser tab has neither.
+      </p>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th scope="col">&nbsp;</th><th scope="col">OpenPixels</th><th scope="col">Typical cloud upscaler</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Where your photo is processed</td><td class="yes">Your device</td><td class="no">Their server</td></tr>
+            <tr><td>Your photo is uploaded</td><td class="yes">Never</td><td class="no">Always</td></tr>
+            <tr><td>Account required</td><td class="yes">No</td><td class="no">Usually</td></tr>
+            <tr><td>Photos per month</td><td class="yes">Unlimited</td><td class="no">Capped by plan</td></tr>
+            <tr><td>Watermark on free output</td><td class="yes">None</td><td class="no">Common</td></tr>
+            <tr><td>Shows measured quality</td><td class="yes">Yes</td><td class="no">No</td></tr>
+            <tr><td>Works with no connection</td><td class="yes">Yes, after first visit</td><td class="no">No</td></tr>
+            <tr><td>Cost</td><td class="yes">Free</td><td class="no">Subscription</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ measurements ============ -->
+  <section id="measure">
+    <div class="wrap split">
+      <div class="shot phone">
+        <img src="/shot-result.png" width="520" height="1127" loading="lazy"
+             alt="The OpenPixels result screen: a before/after slider above a panel reading 3.7x sharper, 576 by 720 from 288 by 360, and faithful to the original." />
+      </div>
+      <div>
+        <div class="eyebrow">Measured, not claimed</div>
+        <h2>Four numbers, and one of them is the honest one.</h2>
+        <p class="sub">
+          Sharpness is the variance of the Laplacian; noise is Immerk&aelig;r's
+          estimator; both are measured on the same window of the image. PSNR and
+          SSIM compare the result &mdash; shrunk back to the size you started with &mdash;
+          against your original.
+        </p>
+        <p class="sub">
+          That last comparison is the one worth understanding. A model that
+          hallucinated new detail would score <em>worse</em> on it, not better. So
+          when OpenPixels says the result is faithful, it is telling you the detail
+          was enlarged rather than dreamt up. Of the twelve products surveyed
+          before this one was built, none showed either measurement.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ privacy ============ -->
+  <section id="privacy">
+    <div class="wrap">
+      <div class="eyebrow">Privacy</div>
+      <h2>"We don't look at your photos" is a promise. This is a fact.</h2>
+      <p class="sub">
+        Most privacy policies ask you to trust a company not to misuse data it
+        holds. OpenPixels has a structural answer instead: your photo is decoded,
+        processed and saved inside your own browser tab, and there is no endpoint
+        anywhere in the product that accepts an image.
+      </p>
+      <div class="grid">
+        <div class="card">
+          <h3>No upload, ever</h3>
+          <p>Your photo is never transmitted. Not to us, not to a third party, not for &ldquo;quality improvement&rdquo;.</p>
+        </div>
+        <div class="card">
+          <h3>No account, no tracking</h3>
+          <p>No sign-in, no analytics, no telemetry, no advertising identifiers and no cookies for any of that.</p>
+        </div>
+        <div class="card">
+          <h3>Then it goes quiet</h3>
+          <p>The only downloads are the app and the model files, from this same address. After the first visit, nothing.</p>
+        </div>
+      </div>
+      <p class="sub" style="margin-top:26px">
+        The full detail is in the <a href="/privacy.html">privacy policy</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ offline / models ============ -->
+  <section id="offline">
+    <div class="wrap split">
+      <div>
+        <div class="eyebrow">Yours to keep</div>
+        <h2>Add it to your home screen and pull the plug.</h2>
+        <p class="sub">
+          OpenPixels is a progressive web app. Add it to your home screen and it
+          opens full screen like any other app &mdash; but it is the same page, and
+          nothing extra is installed.
+        </p>
+        <p class="sub">
+          Models are fetched on first use with a progress bar, never silently: the
+          face restorer is 170&nbsp;MB and the colouriser 255&nbsp;MB, and the app
+          says so before either starts. The Downloads page lists everything stored
+          on your device and lets you delete any of it. Every model file is pinned
+          by sha256, and the build steps that produced it are published, so you can
+          rebuild it from the upstream weights and compare byte for byte.
+        </p>
+      </div>
+      <div class="shot phone">
+        <img src="/shot-models.png" width="520" height="1127" loading="lazy"
+             alt="The OpenPixels Downloads page, listing each model stored on the device with its size and a way to delete it." />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ faq ============ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="eyebrow">Questions</div>
+      <h2>Before you open it.</h2>
+      <div class="faq">
+        <details open>
+          <summary>Is OpenPixels really free?</summary>
+          <p>Yes, entirely. There is no paid tier, no account, no trial, no watermark, no credits and no limit on how many photos you process. Your photo is processed by your own device, so there is no per-photo cost to pass on.</p>
+        </details>
+        <details>
+          <summary>Are my photos uploaded anywhere?</summary>
+          <p>No. Your photo is processed inside your browser tab and never leaves your device. There is no server to upload it to. The only things the page downloads are the app itself and the AI model files, and after the first visit it downloads nothing at all.</p>
+        </details>
+        <details>
+          <summary>How much can OpenPixels enlarge a photo?</summary>
+          <p>Up to 8&times;. You can also choose 2&times;, 4&times;, or keep the original size and just clean the image up. Very large results can exceed what a browser tab can hold, and the app tells you when it has capped the size rather than failing.</p>
+        </details>
+        <details>
+          <summary>Does OpenPixels work offline?</summary>
+          <p>Yes. It is a progressive web app: after the first visit the app works with no network connection. Each AI model is downloaded once, on first use, and cached; the Downloads page lists everything stored and lets you delete any of it.</p>
+        </details>
+        <details>
+          <summary>Do I need an account to use OpenPixels?</summary>
+          <p>No. There is no sign-in anywhere in the product, because there is no server that would have anything to sign in to.</p>
+        </details>
+        <details>
+          <summary>Can OpenPixels restore old and blurry family photographs?</summary>
+          <p>Yes. It finds faces, rebuilds them at 512&nbsp;&times;&nbsp;512 and pastes the result back through a feathered mask, which is the case scans and old family photographs need most. It can also colourise a black-and-white photograph, taking only the colour from the model and keeping the photograph's own lightness.</p>
+        </details>
+        <details>
+          <summary>How do I know the detail is real and not invented?</summary>
+          <p>OpenPixels shrinks its own result back down to the original size and compares it with the photo you started with, then shows you the outcome. If the shrunk result still matches your original, the detail was enlarged rather than invented. It also reports how much sharper the result is and how much noise was removed. Of the twelve products surveyed before this one was built, none showed either measurement.</p>
+        </details>
+        <details>
+          <summary>What can OpenPixels not do?</summary>
+          <p>It cannot invent detail that was never captured &mdash; nothing can. It also deliberately omits AI portrait generation, the feature that turns a photo into a stylised avatar, because that cannot run on your device and would require a server, a price and an account.</p>
+        </details>
+        <details>
+          <summary>Which file formats does OpenPixels support?</summary>
+          <p>Any still image your browser can decode, including JPEG, PNG and WebP. Results are saved as PNG when they carry transparency &mdash; a removed background, for example &mdash; and as JPEG or PNG otherwise.</p>
+        </details>
+        <details>
+          <summary>Is OpenPixels open source?</summary>
+          <p>Yes, under MIT or Apache-2.0 at your option. That includes the exact steps that produced each model file and their sha256 checksums, so the models can be rebuilt from the published upstream weights and compared byte for byte.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ final cta ============ -->
+  <section id="start">
+    <div class="wrap" style="text-align:center">
+      <h2 style="margin-left:auto;margin-right:auto">Open it and drop in a photo.</h2>
+      <p class="sub" style="margin-left:auto;margin-right:auto">
+        No sign-up, no download, no first-run wizard. It is a web page, and the
+        photo stays on your side of it.
+      </p>
+      <a class="btn btn-primary btn-lg" href="https://app.openpixels.app/">Open OpenPixels &rarr;</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="foot-col">
+        <h4>Product</h4>
+        <a href="https://app.openpixels.app/">Open the app</a>
+        <a href="#what">What it does</a>
+        <a href="#compare">How it compares</a>
+      </div>
+      <div class="foot-col">
+        <h4>Trust</h4>
+        <a href="/privacy.html">Privacy policy</a>
+        <a href="#free">Why it's free</a>
+        <a href="#measure">How it measures</a>
+      </div>
+      <div class="foot-col">
+        <h4>Contact</h4>
+        <a href="mailto:openpixelsapp@gmail.com">openpixelsapp@gmail.com</a>
+      </div>
+    </div>
+    <div class="colophon">
+      OpenPixels &mdash; MIT or Apache-2.0, at your option. The models carry their own
+      licences. Built by <a href="https://openapps.network">OpenApps</a>.
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* The comparison slider.
+     `before.jpg` sits in a clipped box, so it must be drawn at the width of
+     the whole frame rather than the width of its own box -- otherwise it
+     squashes as the clip narrows instead of being revealed. That width is
+     set from JS and refreshed on resize. */
+  (function () {
+    var cmp = document.getElementById("cmp");
+    if (!cmp) return;
+    var clip = document.getElementById("clip");
+    var handle = document.getElementById("handle");
+    var dragging = false;
+
+    function sizeInner() {
+      cmp.style.setProperty("--cw", cmp.clientWidth + "px");
+    }
+    function setPct(p) {
+      p = Math.max(0, Math.min(100, p));
+      clip.style.width = p + "%";
+      handle.style.left = p + "%";
+      cmp.setAttribute("aria-valuenow", Math.round(p));
+      cmp.setAttribute("aria-valuetext", Math.round(p) + "% revealed");
+    }
+    function fromX(x) {
+      var r = cmp.getBoundingClientRect();
+      if (!r.width) return;
+      setPct(((x - r.left) / r.width) * 100);
+    }
+
+    cmp.addEventListener("pointerdown", function (e) {
+      dragging = true;
+      cmp.setPointerCapture && cmp.setPointerCapture(e.pointerId);
+      fromX(e.clientX);
+    });
+    cmp.addEventListener("pointermove", function (e) { if (dragging) fromX(e.clientX); });
+    cmp.addEventListener("pointerup", function (e) {
+      dragging = false;
+      cmp.releasePointerCapture && cmp.releasePointerCapture(e.pointerId);
+    });
+    cmp.addEventListener("pointercancel", function () { dragging = false; });
+
+    cmp.addEventListener("keydown", function (e) {
+      var now = parseFloat(cmp.getAttribute("aria-valuenow")) || 50;
+      var step = e.shiftKey ? 10 : 2;
+      if (e.key === "ArrowLeft") setPct(now - step);
+      else if (e.key === "ArrowRight") setPct(now + step);
+      else if (e.key === "Home") setPct(0);
+      else if (e.key === "End") setPct(100);
+      else return;
+      e.preventDefault();
+    });
+
+    addEventListener("resize", sizeInner);
+    sizeInner();
+    setPct(50);
+  })();
+</script>
+
+</body>
+</html>

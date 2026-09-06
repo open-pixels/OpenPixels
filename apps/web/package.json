@@ -12,6 +12,7 @@
     "test": "vitest run",
     "smoke": "node e2e/smoke.mjs",
     "features": "node e2e/features.mjs",
+    "verify:prod": "node e2e/verify-prod.mjs",
     "serve": "bash scripts/serve.sh"
   },
   "devDependencies": {
