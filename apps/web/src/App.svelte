@@ -8,6 +8,7 @@
   import Batch from "$views/Batch.svelte";
   import Models from "$views/Models.svelte";
   import About from "$views/About.svelte";
+  import Account from "$views/Account.svelte";
 
   /*
     `incoming` is how a host hands this app a photo it already has. The web
@@ -148,6 +149,8 @@
     <Models {go} {offlineReady} {modelSource} />
   {:else if route === "about"}
     <About {go} />
+  {:else if route === "account"}
+    <Account {go} />
   {:else}
     <Home {go} {pick} {offlineReady} />
   {/if}

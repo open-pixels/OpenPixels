@@ -1,0 +1,26 @@
+/* Variables only — safe to link inside somebody else's application.
+ *
+ * Everything here declares custom properties or @font-face and nothing else,
+ * so linking it cannot restyle a single element of the host. That matters
+ * because the account and credits panels are embedded surfaces: they render
+ * inside an app that already has its own design, and a token layer that also
+ * reset `body`, `a` and `h1..h6` would silently redesign the host around
+ * them.
+ *
+ * The two class rules that do exist — `.oa-dark` and `.oa-auto` — only
+ * re-point variables, and only on the element they are placed on.
+ *
+ * Use this when embedding. Use ./styles.css for surfaces OpenApps owns.
+ */
+/* fonts.css deliberately NOT imported. It declares every Geist cut and
+ * points at ../fonts/, and this app already declares the three faces it
+ * actually renders in src/fonts.css, resolving them through the $tokens
+ * alias. Importing it here would ship the same three WOFF2 files a second
+ * time and declare cuts nothing on the page uses. */
+@import url("./css/colors.css");
+@import url("./css/typography.css");
+@import url("./css/spacing.css");
+@import url("./css/platform.css");
+@import url("./css/radius.css");
+@import url("./css/elevation.css");
+@import url("./css/motion.css");

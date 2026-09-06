@@ -17,7 +17,7 @@
   "@type": "WebPage",
   "name": "Privacy policy — OpenPixels",
   "url": "https://openpixels.app/privacy.html",
-  "description": "OpenPixels processes every photo on the user's own device. It has no account, no analytics and no server that accepts an image.",
+  "description": "OpenPixels processes every photo on the user's own device. Nothing in it requires an account, it has no analytics, and there is no server that accepts an image.",
   "isPartOf": { "@type": "WebSite", "name": "OpenPixels", "url": "https://openpixels.app/" },
   "dateModified": "2026-09-06"
 }
@@ -98,7 +98,7 @@
   <p>OpenPixels is a web app that enlarges, sharpens, denoises, colourises and cuts the background out of photographs. This page describes exactly what it collects, what it stores, and what it never touches. OpenPixels is open source, so none of this has to be taken on trust &mdash; the source can be read and the claims checked against it.</p>
 
   <div class="card">
-    <p><strong>The short version:</strong> your photo is decoded, processed and saved inside your own browser tab. It is never uploaded, because <strong>there is no server anywhere in this product that accepts an image</strong>. There is no account, no analytics and no tracking of any kind. The only network activity is downloading the app and its AI models &mdash; and after your first visit, not even that.</p>
+    <p><strong>The short version:</strong> your photo is decoded, processed and saved inside your own browser tab. It is never uploaded, because <strong>there is no server anywhere in this product that accepts an image</strong>. Nothing here needs an account, and there is no analytics and no tracking of any kind. Unless you deliberately open the Account page and sign in, the only network activity is downloading the app and its AI models &mdash; and after your first visit, not even that.</p>
   </div>
 
   <h2>What OpenPixels never collects</h2>
@@ -106,7 +106,7 @@
     <li><strong>Your photographs.</strong> They are read from your device into the browser tab, processed there, and written back to your device. None of it is transmitted.</li>
     <li><strong>Anything derived from your photographs</strong> &mdash; no thumbnails, no faces, no embeddings, no quality measurements. The numbers the app shows you are computed in the tab and discarded when you close it.</li>
     <li><strong>Analytics, telemetry, crash reports or usage statistics.</strong> There is no analytics script on the site or in the app.</li>
-    <li><strong>An account.</strong> There is no sign-in, no email address, no profile, and nothing to create one with.</li>
+    <li><strong>An account, unless you deliberately create one.</strong> Nothing in OpenPixels is behind a sign-in, and none of it asks who you are. There is an optional OpenApps account &mdash; see below &mdash; and it is opt-in, unlocks nothing here, and never sees a photo.</li>
     <li><strong>Advertising identifiers.</strong> OpenPixels shows no ads and contains no ad-tracking code.</li>
     <li><strong>Cookies for tracking.</strong> OpenPixels sets no tracking cookies. It sets no cookies at all.</li>
   </ul>
@@ -128,9 +128,13 @@
   <p>To open OpenPixels at all, your browser has to request the page and the model files from our web server, and any web server necessarily sees the requests made to it. Ours records standard access log lines &mdash; the IP address, the time, the file requested, and the browser's user-agent string &mdash; which is what makes it possible to tell whether the site is up and whether a file is being served correctly.</p>
   <p>These logs contain no photograph and nothing derived from one, because no photograph is ever sent. They are not used to build a profile, are not combined with anything else, are not sold or shared, and are rotated and deleted on a short cycle. This is the honest limit of the &ldquo;nothing leaves your device&rdquo; claim: the photo does not, but the request for the page does.</p>
 
-  <h2>No payments, no sign-in providers, no third parties</h2>
-  <p>OpenPixels has no paid tier, so there is no payment processor, no card number and no billing record. There is no Google sign-in, no wallet connection and no third-party identity provider, because there is nothing to sign in to.</p>
-  <p>The site and the app load no fonts, scripts, images or stylesheets from any other origin. There is no CDN, no embedded video, no social widget and no comment system. The server is configured with a Content Security Policy that permits no third-party origins at all, so a future dependency that tried to phone home would fail loudly rather than quietly succeed.</p>
+  <h2>The optional OpenApps account</h2>
+  <p>OpenPixels has no paid tier and nothing in it is metered, so there is nothing here to buy and nothing to unlock. Every feature works, unlimited, without ever signing in &mdash; and that is not a trial or a reduced mode, it is the whole product.</p>
+  <p>There is nonetheless an <strong>Account</strong> page, because OpenApps accounts and credits are shared across a suite of apps and some of the others do have server-side work to pay for. Signing in here lets you manage that shared balance from this app. It is entirely opt-in, and if you never open that page nothing on it ever runs &mdash; the code for it is not even downloaded.</p>
+  <p>If you do sign in, you choose one of three methods, each handled by its own provider rather than by us: <strong>Google</strong>, which shares your email address with our account server; a <strong>crypto wallet</strong>, which signs a login message so your public address identifies you; or <strong>Nostr</strong>, where your public key identifies you. Our account server is reached at <code>auth.openpixels.app</code> and the gateway at <code>gateway.openpixels.app</code>; both are our own machines. <strong>No photograph, and nothing derived from one, is ever part of these requests</strong> &mdash; there is still no server anywhere in this product that accepts an image.</p>
+  <p>If you buy credits, payment is handled by the processor on our account server's own pages &mdash; card payments via Stripe, or directly on-chain for crypto and Lightning. OpenPixels never sees or stores a card number, a seed phrase or a private key.</p>
+  <p>The site and the app load no fonts, scripts, images or stylesheets from any other origin. There is no CDN, no embedded video, no social widget and no comment system.</p>
+  <p>This is enforced rather than promised. The app is served with a Content Security Policy whose <code>connect-src</code> lists exactly three origins: the app itself, and the two account hosts above. A dependency that tried to phone home anywhere else would be blocked by the browser and fail loudly, rather than quietly succeeding.</p>
 
   <h2>Where the model files come from</h2>
   <p>The models are Real-ESRGAN, GFPGAN, DeOldify, U&sup2;-Net and YuNet, each under a licence that permits this use. They are served from openpixels.app, not from a third party, so using OpenPixels does not expose you to anyone else's servers. Every file is pinned by its sha256 checksum and the exact steps that produced it are published, so a copy can be rebuilt from the upstream weights and compared byte for byte.</p>
@@ -139,7 +143,9 @@
   <p>OpenPixels is not directed at children under 13. Since it collects no personal data from anyone, it collects none from them either.</p>
 
   <h2>Your rights</h2>
-  <p>Regulations such as the GDPR and the CCPA give you rights to access, correct, export and delete the personal data a service holds about you. OpenPixels holds none, so there is nothing to access, export or delete &mdash; and no request you could make that would return anything. Data stored on your own device is under your control at all times, through the Downloads page or your browser's site-data settings.</p>
+  <p>Regulations such as the GDPR and the CCPA give you rights to access, correct, export and delete the personal data a service holds about you.</p>
+  <p>If you have never signed in, OpenPixels holds nothing about you &mdash; there is nothing to access, export or delete, and no request you could make that would return anything. Data stored on your own device is under your control at all times, through the Downloads page or your browser's site-data settings.</p>
+  <p>If you did create an OpenApps account, that account and its credit ledger are held by our account server, and those rights apply to it in the ordinary way. Write to the address below to export or delete it. Deleting it removes the account, not anything about your photographs, because there has never been anything about your photographs to remove.</p>
 
   <h2>Changes to this policy</h2>
   <p>If this policy changes, the date at the top of this page will be updated. If OpenPixels ever gained a feature that sent anything anywhere, that would be described here before the feature shipped &mdash; not after.</p>

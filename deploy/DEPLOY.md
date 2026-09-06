@@ -13,15 +13,17 @@ export DEPLOY_HOST=<the host>
 Everything below is the part that is genuinely worth writing down: what breaks,
 and why it breaks silently.
 
-Two hostnames on one host, and they are different things:
+Five hostnames on one host, and they are different things:
 
 | | | |
 |---|---|---|
 | `openpixels.app` | `/var/www/openpixels-site` | The marketing site: `website/` in this repo. |
 | `app.openpixels.app` | `/var/www/openpixels-app` | The application: `apps/web/dist`. |
 | `www.openpixels.app` | — | Redirects to the apex. |
+| `auth.openpixels.app` | `127.0.0.1:8080` | The shared OpenApps account server, under an OpenPixels name. |
+| `gateway.openpixels.app` | `127.0.0.1:8090` | The shared OpenApps gateway, likewise. |
 
-Both are static files and nothing else. There is no server process, no
+The first two are static files and nothing else. There is no server process, no
 database and no API — which is the same fact the About page and the privacy
 policy state, so **any deployment that adds one has broken the product's
 central claim.**
@@ -53,16 +55,17 @@ code.
 
 ## The nginx config
 
-Three files in `deploy/`, copied to the server:
+Four files in `deploy/`, copied to the server:
 
 ```sh
-scp deploy/openpixels-security.conf   root@$DEPLOY_HOST:/etc/nginx/snippets/
-scp deploy/openpixels.app.conf        root@$DEPLOY_HOST:/etc/nginx/sites-available/openpixels.app
-scp deploy/app.openpixels.app.conf    root@$DEPLOY_HOST:/etc/nginx/sites-available/app.openpixels.app
+scp deploy/openpixels-security.conf        root@$DEPLOY_HOST:/etc/nginx/snippets/
+scp deploy/openpixels.app.conf             root@$DEPLOY_HOST:/etc/nginx/sites-available/openpixels.app
+scp deploy/app.openpixels.app.conf         root@$DEPLOY_HOST:/etc/nginx/sites-available/app.openpixels.app
+scp deploy/auth-gateway.openpixels.app.conf root@$DEPLOY_HOST:/etc/nginx/sites-available/auth-gateway.openpixels.app
 ssh root@$DEPLOY_HOST 'nginx -t && systemctl reload nginx'
 ```
 
-Those two server-block files are **bootstrap templates, not backups**. Once
+Those three server-block files are **bootstrap templates, not backups**. Once
 certbot has run it owns the `listen 443`, the certificate paths and the
 redirect blocks in the live files, and they exist only on the server. Diff
 before you ever copy over a live one:
@@ -77,6 +80,7 @@ Certificates were issued with:
 ```sh
 certbot --nginx --redirect -d app.openpixels.app
 certbot --nginx --redirect -d openpixels.app -d www.openpixels.app
+certbot --nginx --redirect -d auth.openpixels.app -d gateway.openpixels.app
 ```
 
 ## Three things in the config are load-bearing
@@ -88,9 +92,11 @@ certbot --nginx --redirect -d openpixels.app -d www.openpixels.app
    so the symptom is "Failed to fetch dynamically imported module" and a
    silent fall back to CPU — or no inference at all. Nothing in the error
    mentions a MIME type.
-2. **`connect-src 'self'` in the CSP.** This is what makes a future
-   dependency that phones home fail loudly in the browser instead of quietly
-   succeeding. It is the privacy claim, expressed as a header.
+2. **`connect-src` in the CSP.** This is what makes a dependency that phones
+   home fail loudly in the browser instead of quietly succeeding. It is the
+   privacy claim, expressed as a header. It lists exactly three origins —
+   `'self'` and the two account hosts — and a fourth needs the same argument
+   had again.
 3. **`include snippets/openpixels-security.conf` in *every* location.**
    `add_header` does not accumulate: a location with any `add_header` of its
    own inherits none from its parent. Every location here sets a
@@ -131,7 +137,8 @@ looks fine and simply never produces a result. So finish with a real browser
 doing a real upscale against the deployed host:
 
 ```sh
-npm --prefix apps/web run verify:prod
+npm --prefix apps/web run verify:prod       # a real upscale, on the real host
+npm --prefix apps/web run test:account      # the account surface and the masking
 ```
 
 It loads `https://app.openpixels.app`, enhances a photo, asserts the result
@@ -139,9 +146,40 @@ actually got sharper and stayed faithful, and fails the run on any CSP
 violation, failed request or page error. Point it elsewhere with
 `node apps/web/e2e/verify-prod.mjs --host https://staging.example`.
 
+## The account hosts
+
+`auth.` and `gateway.` are the one part of this deployment that is not static.
+They reverse-proxy to the shared OpenApps backend running on the same box, so
+that a product which has never mentioned `openapps.network` to its users does
+not start doing so in the address bar during sign-in — or, worse, in a browser
+permission prompt, which names whichever host is asked for.
+
+`deploy/auth-gateway.openpixels.app.conf` is the pair, and its header explains
+what the masking does and does not hide. Two things it does not: Google
+sign-in still visibly bounces through `accounts.openapps.network` on the OAuth
+callback, and a wallet signature prompt still names that host. Both are built
+once at server startup from its own `public_url`, so no amount of nginx fixes
+them.
+
+**The app's origin must be in the backend's `allowed_origins`**, or every
+account call fails CORS — which a browser reports identically to a dead
+server. It lives in `/opt/openapps/deploy/prod.env` on the host, and changing
+it means re-running `./deploy/run.sh prod`, which recreates a container shared
+by every other product. Check it without deploying anything:
+
+```sh
+curl -sSi -H "Origin: https://app.openpixels.app" \
+  https://auth.openpixels.app/v1/payments/packages | grep -i access-control-allow-origin
+```
+
+Nothing in OpenPixels is behind an account, so none of this gates a feature —
+see `apps/web/src/lib/openapps.js` for why, and keep it that way unless the
+website's pricing copy changes with it.
+
 ## DNS
 
-`@`, `www` and `app` are A records to `$DEPLOY_HOST`, managed at Namecheap.
+`@`, `www`, `app`, `auth` and `gateway` are A records to `$DEPLOY_HOST`,
+managed at Namecheap.
 
 **Watch for a leftover URL-redirect record on `@`.** A parked domain carries
 one, it is invisible to the Namecheap API (it comes back only as

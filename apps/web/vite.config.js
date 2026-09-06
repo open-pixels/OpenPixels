@@ -9,11 +9,19 @@ export default defineConfig({
   plugins: [svelte()],
   resolve: {
     alias: {
-      // The OpenApps design tokens, shared rather than copied — two copies
-      // drift the moment they exist. Only the CSS: the kit's components
-      // pull icon glyphs from a CDN, and this build has to render with no
-      // network at all.
-      $tokens: fileURLToPath(new URL("../../../tokens", import.meta.url)),
+      // The OpenApps design tokens.
+      //
+      // This used to point at ../../../tokens, in the monorepo, which was
+      // right while this app lived there and became wrong the moment it
+      // became its own repository: that path is outside the repo, so a
+      // clone of it could not build at all. The tokens are vendored under
+      // src/vendor/openapps now, alongside the account bundle they style,
+      // and this alias points inside the repo.
+      //
+      // Only the CSS and the three WOFF2 faces this app renders. The kit's
+      // components pull icon glyphs from a CDN, and this build has to work
+      // with no network at all. Refresh with scripts/vendor-openapps.sh.
+      $tokens: fileURLToPath(new URL("./src/vendor/openapps", import.meta.url)),
       $lib: fileURLToPath(new URL("./src/lib", import.meta.url)),
       $ui: fileURLToPath(new URL("./src/ui", import.meta.url)),
       $views: fileURLToPath(new URL("./src/views", import.meta.url)),

@@ -13,6 +13,7 @@
     "smoke": "node e2e/smoke.mjs",
     "features": "node e2e/features.mjs",
     "verify:prod": "node e2e/verify-prod.mjs",
+    "test:account": "node e2e/account.mjs",
     "serve": "bash scripts/serve.sh"
   },
   "devDependencies": {

@@ -1,0 +1,240 @@
+/**
+ * The account surface, and the masking that hides the backend behind it.
+ *
+ * Every failure this catches is silent. A missing CORS origin, a `configure()`
+ * that never ran, a refactor that reintroduces a bare `openapps.network`
+ * literal — none of them throw, none of them show up in a build, and all of
+ * them leave a page that renders perfectly and simply never signs anyone in.
+ *
+ *   node e2e/account.mjs [--host http://localhost:PORT] [--headed]
+ *
+ * By default it serves `dist/` itself and points the browser at that, so it
+ * checks the built output rather than a dev server. Pass `--host` to run the
+ * same assertions against a deployed origin.
+ *
+ * It never drives a real Google or wallet sign-in. That needs a human and an
+ * identity provider, and neither belongs in a test run; the assertions sit on
+ * everything either side of it.
+ */
+
+import { chromium } from "playwright";
+import { createServer } from "node:http";
+import { readFile, readdir, stat } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { dirname, extname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(here, "..");
+const DIST = join(ROOT, "dist");
+const SRC = join(ROOT, "src");
+// 5173, not an arbitrary port: the origin has to be one the server already
+// allows, or every page check fails on CORS for a reason that is purely an
+// artefact of the test. `http://localhost:5173` is in prod.env's
+// OPENAPPS_SERVER_ALLOWED_ORIGINS.
+const PORT = 5173;
+
+const argv = process.argv.slice(2);
+const hostArg = argv.indexOf("--host");
+const HOST = hostArg !== -1 ? argv[hostArg + 1] : `http://localhost:${PORT}`;
+const headed = argv.includes("--headed");
+const serveLocally = hostArg === -1;
+
+// Kept in step with src/lib/openapps.js, deliberately by hand: if someone
+// changes the hostname there, this file is the thing that should fail.
+const AUTH_HOST = "https://auth.openpixels.app";
+const GATEWAY_HOST = "https://gateway.openpixels.app";
+
+const TYPES = {
+  ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript",
+  ".css": "text/css", ".wasm": "application/wasm", ".json": "application/json",
+  ".webmanifest": "application/manifest+json", ".onnx": "application/octet-stream",
+  ".png": "image/png", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".jpg": "image/jpeg",
+};
+
+function serve() {
+  const server = createServer(async (req, res) => {
+    const url = new URL(req.url, `http://localhost:${PORT}`);
+    let path = join(DIST, decodeURIComponent(url.pathname));
+    if (url.pathname === "/" || !existsSync(path)) {
+      if (existsSync(join(path, "index.html"))) path = join(path, "index.html");
+      else { res.writeHead(404).end("not found"); return; }
+    }
+    res.writeHead(200, { "content-type": TYPES[extname(path)] ?? "application/octet-stream" });
+    res.end(await readFile(path));
+  });
+  return new Promise((r) => server.listen(PORT, () => r(server)));
+}
+
+const failures = [];
+function check(name, ok, detail = "") {
+  if (!ok) failures.push(name + (detail ? ` — ${detail}` : ""));
+  console.log(`  ${ok ? "ok  " : "FAIL"}  ${name}${detail ? `  — ${detail}` : ""}`);
+}
+
+/** Every file under a directory, minus the vendored bundle. */
+async function sourceFiles(dir, out = []) {
+  for (const entry of await readdir(dir)) {
+    const full = join(dir, entry);
+    if ((await stat(full)).isDirectory()) {
+      if (entry === "vendor") continue;   // build output, not our source
+      await sourceFiles(full, out);
+    } else if (/\.(js|svelte|html|css)$/.test(entry)) {
+      out.push(full);
+    }
+  }
+  return out;
+}
+
+async function main() {
+  // ---- 1. The masking, as a static property of the source -----------------
+  //
+  // This is the regression test for the bug OpenCapture actually shipped: the
+  // base URL written as a literal in two places, so moving to the custom
+  // domain fixed one and silently left the other on the old host. It costs
+  // nothing and it is the check most likely to catch a future refactor.
+  console.log("masking:");
+  const files = await sourceFiles(SRC);
+  const offenders = [];
+  for (const f of files) {
+    if (f.endsWith(join("lib", "openapps.js"))) continue;   // the one place it may appear
+    const text = await readFile(f, "utf8");
+    if (/openapps\.network/.test(text)) offenders.push(f.slice(ROOT.length + 1));
+  }
+  check("no source file outside lib/openapps.js names openapps.network",
+    offenders.length === 0, offenders.join(", "));
+
+  const config = await readFile(join(SRC, "lib", "openapps.js"), "utf8");
+  check("the auth host is the product's own", config.includes(AUTH_HOST));
+  check("the gateway host is the product's own", config.includes(GATEWAY_HOST));
+  // Match the assignment, not the file: openapps.js explains the masking in
+  // prose, and a comment naming the shared backend is the documentation doing
+  // its job rather than a leak.
+  const gatewayConst = config.match(/OPENAPPS_GATEWAY_URL\s*=\s*"([^"]+)"/)?.[1];
+  const authConst = config.match(/OPENAPPS_BASE_URL\s*=\s*"([^"]+)"/)?.[1];
+  check("the gateway constant is not left on the shared backend",
+    gatewayConst === GATEWAY_HOST, gatewayConst ?? "not found");
+  check("the auth constant is not left on the shared backend",
+    authConst === AUTH_HOST, authConst ?? "not found");
+
+  // ---- 2. The hosts answer ------------------------------------------------
+  console.log("hosts:");
+  for (const [label, url] of [["auth", AUTH_HOST], ["gateway", GATEWAY_HOST]]) {
+    try {
+      const res = await fetch(`${url}/healthz`);
+      check(`${label} host answers /healthz`, res.ok, `HTTP ${res.status}`);
+    } catch (e) {
+      check(`${label} host answers /healthz`, false, e.message);
+    }
+  }
+
+  // CORS is the single most common way this breaks, and a browser reports it
+  // identically to a dead server — so assert on the header directly, where
+  // the cause is unambiguous.
+  try {
+    const res = await fetch(`${AUTH_HOST}/v1/payments/packages`, {
+      headers: { Origin: "https://app.openpixels.app" },
+    });
+    check("the app origin is in the server's allowed_origins",
+      res.headers.get("access-control-allow-origin") === "https://app.openpixels.app",
+      res.headers.get("access-control-allow-origin") ?? "no header");
+  } catch (e) {
+    check("the app origin is in the server's allowed_origins", false, e.message);
+  }
+
+  let methods = {};
+  try {
+    methods = (await (await fetch(`${AUTH_HOST}/v1/auth/methods`)).json())?.methods ?? {};
+    check("the server has at least one sign-in method configured",
+      Object.values(methods).some(Boolean), JSON.stringify(methods));
+  } catch (e) {
+    check("the server has at least one sign-in method configured", false, e.message);
+  }
+
+  // ---- 3. The page ---------------------------------------------------------
+  console.log("account page:");
+  const server = serveLocally ? await serve() : null;
+  const browser = await chromium.launch({ channel: "chromium", headless: !headed });
+  const page = await browser.newPage({ viewport: { width: 430, height: 932 } });
+  const csp = [], errors = [];
+  page.on("console", (m) => {
+    const t = m.text();
+    if (/Content Security Policy|Refused to/i.test(t)) csp.push(t);
+    else if (m.type() === "error") errors.push(t);
+  });
+  page.on("pageerror", (e) => errors.push(String(e)));
+
+  try {
+    const accountRequests = [];
+    page.on("request", (r) => accountRequests.push(r.url()));
+    await page.goto(`${HOST}/#/account`, { waitUntil: "load", timeout: 60_000 });
+    await page.waitForTimeout(3000);
+
+    // What the client actually dialled. Stronger than reading a constant and
+    // stronger than asking an element for its client, because it is the wire.
+    check("the account page called the product's auth host",
+      accountRequests.some((u) => u.startsWith(AUTH_HOST)),
+      accountRequests.find((u) => u.startsWith(AUTH_HOST)) ?? "no request to the auth host");
+    check("nothing was sent to the shared backend hostname",
+      !accountRequests.some((u) => /openapps\.network/.test(u)),
+      accountRequests.find((u) => /openapps\.network/.test(u)) ?? "");
+
+    const body = await page.locator("body").innerText();
+
+    // The promise the pricing page makes has to survive the existence of an
+    // account page. If this text goes, the website is lying.
+    check("the page says up front that an account unlocks nothing here",
+      /unlocks nothing|no limit/i.test(body), body.slice(0, 80));
+
+    // Assert the failure state is ABSENT rather than that a button exists:
+    // the CORS failure renders a perfectly nice panel that can never sign
+    // anyone in, so presence of UI proves nothing.
+    check("the account tools reached the server",
+      !/Could not reach the account server/i.test(body),
+      /Could not reach/i.test(body) ? "CORS or the host is down" : "");
+
+    const panel = await page.locator('[data-testid="account-panel"]').count();
+    check("the account panel mounted", panel === 1);
+
+    // The client's *runtime* baseUrl, not the constant — this is what catches
+    // a configure() that never ran.
+    const baseUrl = await page.evaluate(() => {
+      const el = document.querySelector("openapps-login");
+      return el?.client?.baseUrl ?? window.__openappsBaseUrl ?? null;
+    });
+    if (baseUrl) {
+      check("the live client points at the product's auth host", baseUrl === AUTH_HOST, baseUrl);
+    } else {
+      // Not every element exposes its client; fall back to proving no request
+      // ever went to the shared backend hostname.
+      check("the live client points at the product's auth host", true, "(not exposed; see request check)");
+    }
+
+    check("no CSP violations on the account page", csp.length === 0, csp[0] ?? "");
+    check("no page errors on the account page", errors.length === 0, errors[0] ?? "");
+
+    // ---- 4. Nothing regressed on the rest of the app ---------------------
+    console.log("the rest of the app:");
+    const requests = [];
+    page.on("request", (r) => requests.push(r.url()));
+    await page.goto(`${HOST}/`, { waitUntil: "load", timeout: 60_000 });
+    await page.waitForTimeout(1500);
+    const home = await page.locator("body").innerText();
+    check("the home page still promises everything is free",
+      /free/i.test(home) && /no account|nothing is uploaded/i.test(home));
+    check("the home page contacts no account server at all",
+      !requests.some((u) => /auth\.openpixels|gateway\.openpixels|openapps\.network/.test(u)),
+      requests.find((u) => /auth\.openpixels|openapps\.network/.test(u)) ?? "");
+  } finally {
+    await browser.close();
+    server?.close();
+  }
+
+  if (failures.length) {
+    console.error(`\n${failures.length} check(s) failed:\n  ` + failures.join("\n  "));
+    process.exit(1);
+  }
+  console.log("\nall account checks passed");
+}
+
+main().catch((e) => { console.error(e); process.exit(1); });

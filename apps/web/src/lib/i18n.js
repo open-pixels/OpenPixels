@@ -22,6 +22,7 @@ const en = {
   "nav.batch": "Several at once",
   "nav.models": "Downloads",
   "nav.about": "What this costs",
+  "nav.account": "Account",
   "nav.back": "Back",
   "nav.home": "Home",
 
@@ -157,9 +158,23 @@ const en = {
   "models.source.saved": "Saved. Delete any downloaded model above to re-fetch it from here.",
   "models.source.invalid": "That needs to be a full web address, starting with https://",
 
+  "account.title": "Account",
+  "account.lede":
+    "Optional, and it unlocks nothing here. An account carries credits to the other OpenApps tools; everything on this site stays free either way.",
+  "account.free.title": "Nothing here is behind it",
+  "account.free.body":
+    "Every feature runs on your own device, so it costs us nothing per photo and there is nothing to charge for. Signed in or not, you get all of it, with no limit.",
+  "account.private.title": "Your photos are still not involved",
+  "account.private.body":
+    "Signing in sends an email address or a wallet signature to our account server, and nothing else. No photo is uploaded, before or after — there is still no server that accepts one.",
+  "account.loading": "Loading the account tools…",
+  "account.offline.title": "Could not reach the account server",
+  "account.offline.body":
+    "Everything else on this site works without it — nothing here depends on an account. Try again later.",
+
   "about.title": "What this costs",
   "about.free":
-    "Nothing, and there is no version that costs something. There is no account, no trial, no credit, no watermark and no limit.",
+    "Nothing, and there is no version that costs something. No trial, no credit, no watermark and no limit — and nothing here is behind an account.",
   "about.how.title": "How that works",
   "about.how.body":
     "Your photo is processed by your own device, so running this costs us nothing per photo. Tools that charge for this send your photo to a server and pay for the GPU that handles it; that bill is what a subscription covers. There is no such bill here, so there is nothing to charge you for.",
@@ -199,6 +214,7 @@ const zh = {
   "nav.batch": "批量处理",
   "nav.models": "已下载",
   "nav.about": "收费说明",
+  "nav.account": "账户",
   "nav.back": "返回",
   "nav.home": "首页",
 
@@ -326,8 +342,21 @@ const zh = {
   "models.source.saved": "已保存。删除上面任一已下载的模型，即可从新地址重新获取。",
   "models.source.invalid": "需要填写完整的网址，以 https:// 开头。",
 
+  "account.title": "账户",
+  "account.lede":
+    "可选，而且不会解锁这里的任何功能。账户用于把积分带到 OpenApps 的其他工具；本站的一切始终免费。",
+  "account.free.title": "这里没有任何功能需要账户",
+  "account.free.body":
+    "所有功能都在你自己的设备上运行，我们每张照片的成本是零，也就没有可收费的东西。无论是否登录，功能全都可用，且没有次数限制。",
+  "account.private.title": "你的照片依然与此无关",
+  "account.private.body":
+    "登录只会把邮箱地址或钱包签名发送到我们的账户服务器，除此之外没有别的。前后都不会上传照片——依然没有任何服务器会接收照片。",
+  "account.loading": "正在加载账户工具……",
+  "account.offline.title": "无法连接账户服务器",
+  "account.offline.body": "本站其余功能都不依赖账户，可以照常使用。请稍后再试。",
+
   "about.title": "收费说明",
-  "about.free": "不收费，也没有收费版本。没有账号、试用、积分、水印或次数限制。",
+  "about.free": "不收费，也没有收费版本。没有试用、积分、水印或次数限制——而且这里没有任何功能需要账户。",
   "about.how.title": "为什么能免费",
   "about.how.body":
     "照片由你自己的设备处理，所以我们每处理一张的成本是零。收费的工具会把你的照片传到服务器，并为处理它的 GPU 付费，订阅费就是用来付这笔账的。这里没有这笔账，也就没有理由向你收费。",
