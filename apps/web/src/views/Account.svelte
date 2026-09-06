@@ -36,7 +36,6 @@
   let { go } = $props();
 
   let state = $state("loading"); // loading | ready | failed
-  let panel = $state(null);
 
   $effect(() => {
     let cancelled = false;
@@ -45,42 +44,6 @@
       .catch(() => !cancelled && (state = "failed"));
     return () => (cancelled = true);
   });
-
-  /*
-    The sign-in panel is a web component with a closed-off look of its own:
-    its header reads "Sign in to OpenApps" above a mark, which names a
-    company nobody who installed a photo enhancer has heard of. The suite is
-    shared plumbing, not a brand to introduce here.
-
-    There are no `part` attributes to reach it with, so the only handle is a
-    stylesheet pushed into the shadow root. That hides its header; the
-    heading above it in this file is ours, and says the same thing in the
-    product's own words.
-
-    Deliberately CSS rather than editing the vendored bundle: the bundle is
-    refreshed wholesale by scripts/vendor-openapps.sh, and any edit made
-    inside it would be silently reverted the next time someone ran that.
-  */
-  $effect(() => {
-    if (state !== "ready" || !panel) return;
-    const el = panel.querySelector("openapps-login");
-    if (!el) return;
-    let stop = false;
-    const dress = () => {
-      if (stop) return;
-      const root = el.shadowRoot;
-      if (!root) return requestAnimationFrame(dress);
-      if (!root.querySelector("style[data-openpixels]")) {
-        const style = document.createElement("style");
-        style.dataset.openpixels = "";
-        style.textContent = ".head { display: none !important; }";
-        root.append(style);
-      }
-    };
-    dress();
-    return () => (stop = true);
-  });
-
 
 </script>
 
@@ -120,17 +83,27 @@
       <p class="muted small">{OPENAPPS_BASE_URL}</p>
     </div>
   {:else}
-    <div class="card stack" data-testid="account-panel" bind:this={panel}>
-      <h2 class="signin-title">{$t("account.signin.title")}</h2>
-      <p class="signin-desc">{$t("account.signin.body")}</p>
+    <div class="card stack" data-testid="account-panel">
       <!--
-        No `return-to` here, deliberately: <openapps-login> declares no such
-        property (only <openapps-buy> does), so setting one is silently
-        ignored. The SDK's default is origin + pathname + search, which is
-        this app's root -- and the code comes back to it in the *fragment*,
-        which App.svelte now recognises and routes here. See lib/openapps.js.
+        The panel's framing is ours. `heading`, `description` and `mark` are
+        supported properties, which is how OpenPdfEdit does it -- far better
+        than hiding the default header with injected shadow-DOM CSS, since
+        that survives a bundle refresh and this does not depend on the
+        element's internal class names. The default heading names a service
+        the visitor has never heard of, above a request for a password, which
+        reads exactly like the thing people are told to be suspicious of.
+
+        No `return-to`: <openapps-login> declares no such property (only
+        <openapps-buy> does), so setting one is silently ignored. The SDK's
+        default is origin + pathname + search, and the code comes back to it
+        in the *fragment* -- which App.svelte recognises and routes here.
       -->
-      <openapps-login variant="panel"></openapps-login>
+      <openapps-login
+        variant="panel"
+        mark="P"
+        heading={$t("account.signin.title")}
+        description={$t("account.signin.body")}
+      ></openapps-login>
       <openapps-credits poll-seconds="30"></openapps-credits>
       <openapps-account></openapps-account>
       <openapps-buy></openapps-buy>
@@ -167,12 +140,5 @@
   .small {
     font-size: 0.85em;
     word-break: break-all;
-  }
-  .signin-title {
-    margin: 0;
-  }
-  .signin-desc {
-    margin: 0;
-    color: var(--text-muted);
   }
 </style>

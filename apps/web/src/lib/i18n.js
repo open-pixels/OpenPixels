@@ -161,7 +161,7 @@ const en = {
   "account.title": "Account",
   "account.lede":
     "Optional, and it unlocks nothing here. An account carries credits to our other apps; everything on this site stays free either way.",
-  "account.signin.title": "Sign in",
+  "account.signin.title": "Sign in to OpenPixels",
   "account.signin.body":
     "One account across our apps. You do not need it here — nothing on this site is behind it.",
   "account.free.title": "Nothing here is behind it",
@@ -348,7 +348,7 @@ const zh = {
   "account.title": "账户",
   "account.lede":
     "可选，而且不会解锁这里的任何功能。账户用于把积分带到我们的其他应用；本站的一切始终免费。",
-  "account.signin.title": "登录",
+  "account.signin.title": "登录 OpenPixels",
   "account.signin.body": "一个账户通用于我们的各个应用。这里并不需要它——本站没有任何功能需要登录。",
   "account.free.title": "这里没有任何功能需要账户",
   "account.free.body":
