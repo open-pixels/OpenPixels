@@ -19,7 +19,7 @@ Five hostnames on one host, and they are different things:
 |---|---|---|
 | `openpixels.app` | `/var/www/openpixels-site` | The marketing site: `website/` in this repo. |
 | `app.openpixels.app` | `/var/www/openpixels-app` | The application: `apps/web/dist`. |
-| `www.openpixels.app` | — | Redirects to the apex. |
+| `www.openpixels.app` | — | 301s to the apex. Its own server block, so the two names are never one document tree. |
 | `auth.openpixels.app` | `127.0.0.1:8080` | The shared OpenApps account server, under an OpenPixels name. |
 | `gateway.openpixels.app` | `127.0.0.1:8090` | The shared OpenApps gateway, likewise. |
 
@@ -193,8 +193,11 @@ refuse to fall back to HTTP. Half of all visits fail, intermittently, which
 is the worst way for it to fail.
 
 ```sh
-dig +short openpixels.app A      # must be exactly $DEPLOY_HOST, one line
+dig +short openpixels.app A      # must be exactly one line
 ```
+
+For openpixels.app this was cleared on 6 September 2026 and the apex has
+answered on a single address since.
 
 ## What a visitor downloads
 
