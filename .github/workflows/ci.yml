@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  core:
+    name: Rust core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test -p pixels-core
+      # The browser build has to keep compiling even when nobody has run it
+      # locally: a change that only breaks wasm32 is otherwise invisible.
+      - run: cargo build -p pixels-core --target wasm32-unknown-unknown --release
+
+  web:
+    name: Web app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: cargo install wasm-bindgen-cli --version 0.2.126 --locked
+      - run: sudo apt-get update && sudo apt-get install -y binaryen
+      - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install onnx onnxruntime onnxconverter-common numpy
+      # Caches the converted weights: the export is deterministic and the
+      # checksums in fetch-models.sh short-circuit it on a hit.
+      - uses: actions/cache@v4
+        with:
+          path: .vendor
+          key: models-${{ hashFiles('scripts/export-models.py', 'apps/web/scripts/fetch-models.sh') }}
+      - run: npm --prefix apps/web ci
+      - run: npm --prefix apps/web run build
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - run: npm --prefix apps/web run smoke
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: web-screenshots
+          path: apps/web/e2e/output/
+
+  extension:
+    name: Extension
+    runs-on: ubuntu-latest
+    needs: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: cargo install wasm-bindgen-cli --version 0.2.126 --locked
+      - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install onnx onnxruntime onnxconverter-common numpy
+      - uses: actions/cache@v4
+        with:
+          path: .vendor
+          key: models-${{ hashFiles('scripts/export-models.py', 'apps/web/scripts/fetch-models.sh') }}
+      - run: npm --prefix apps/web ci
+      - run: bash apps/web/scripts/fetch-models.sh
+      - run: npm --prefix apps/extension ci
+      - run: npm --prefix apps/extension run build:all
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/extension
+      # This job is not redundant with `web`: the smoke test above runs on a
+      # headless shell with no WebGPU, and this one uses the full Chromium,
+      # which has it. The two exercise different onnxruntime backends, and a
+      # bug in the fast path is invisible to the other.
+      - run: npm --prefix apps/extension run e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: extension-build
+          path: |
+            apps/extension/dist/
+            apps/extension/dist-firefox/
+            apps/extension/e2e/output/

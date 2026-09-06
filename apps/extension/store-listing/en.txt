@@ -1,0 +1,52 @@
+OpenPixels — free AI image upscaler, nothing uploaded
+
+Right-click any image on any page and make it sharp. Upscale up to 8x,
+clear noise and compression artefacts, rebuild blurred faces, colourise
+black-and-white photographs, and remove backgrounds.
+
+Everything is free. No account, no trial, no watermark, no credits, and no
+limit on how many images you do.
+
+WHY IT IS FREE
+Your image is processed by your own device, inside your browser. There is no
+server doing the work, so there is no per-image cost to pass on to you.
+Tools that charge for this upload your photo and pay for the GPU that
+handles it; that is what their subscription covers. There is no such bill
+here, so there is nothing to charge you for.
+
+NOTHING IS UPLOADED
+Your image never leaves your browser. The only thing this extension
+downloads is the AI models themselves, once, from openpixels.app — and after
+that it works with no network at all. It asks for no access to any website
+until you right-click an image on one, and then only for that site.
+
+SEE WHAT CHANGED
+A before/after slider, and real measurements underneath: how much sharper
+the result is, how much noise came out, and whether it stayed faithful to
+your original. No other tool in this category shows you either. That last
+number matters — it is how you know the model enlarged what was there
+instead of inventing something new.
+
+WHAT IT DOES
+• Upscale 2x, 4x or 8x, or clean up an image at its original size
+• Remove noise, grain and JPEG compression artefacts
+• Rebuild faces that have gone soft in scans and old photographs
+• Colourise black-and-white photographs
+• Remove or replace a background
+• A separate model tuned for drawings and anime
+• Process a whole folder at once, with no limit, and download a ZIP
+• Works offline after the first use
+
+WHAT IT DELIBERATELY DOES NOT DO
+AI portrait generation — the feature that turns your photo into a stylised
+avatar. It cannot run on your device, so it would need a server, a price and
+an account. The products that offer it also draw steady complaints about
+changing people's skin tone and features. Making your photo clearer and
+generating a new one are different jobs, and this extension only does the
+first.
+
+OPEN SOURCE
+All of it, including the exact steps that produced each model file and their
+checksums, so you can rebuild it and compare. The models are Real-ESRGAN,
+GFPGAN, DeOldify, U²-Net and YuNet, each under a licence that permits this
+use.

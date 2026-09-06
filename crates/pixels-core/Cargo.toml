@@ -1,0 +1,20 @@
+[package]
+name = "pixels-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Everything around the forward pass: tiling, seam merge, metrics, sharpening, colour, matting and face alignment for OpenPixels"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+image = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+# wasm only: src/wasm.rs is gated on target_arch = "wasm32".
+wasm-bindgen = { workspace = true }
+console_error_panic_hook = { workspace = true }

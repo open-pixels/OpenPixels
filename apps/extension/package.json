@@ -1,0 +1,26 @@
+{
+  "name": "openpixels-extension",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT OR Apache-2.0",
+  "description": "Right-click any image on the web and make it sharp — free, and without uploading it.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:firefox": "TARGET_BROWSER=firefox node scripts/build.mjs",
+    "build:all": "npm run build && npm run build:firefox",
+    "lint:manifest": "node scripts/check-manifest.mjs",
+    "e2e": "node e2e/smoke.mjs",
+    "lint:firefox": "web-ext lint --source-dir=dist-firefox --no-config-discovery"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    "playwright": "^1.63.0",
+    "svelte": "^5.0.0",
+    "vite": "^6.0.0",
+    "web-ext": "^10.6.0"
+  },
+  "dependencies": {
+    "onnxruntime-web": "^1.20.1"
+  }
+}

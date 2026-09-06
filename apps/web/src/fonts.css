@@ -1,0 +1,29 @@
+/* Only the faces this app renders.
+
+   The shared token file declares every Geist cut, which is right for a
+   desktop app that ships them once and wrong for a page a phone downloads
+   over mobile data. Same files, same alias, three @font-face rules —
+   and the subsetted WOFF2 rather than the OTF, which is 41 KB against
+   several megabytes. */
+
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("$tokens/fonts/Geist-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("$tokens/fonts/Geist-Medium.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("$tokens/fonts/GeistMono-Regular.woff2") format("woff2");
+}

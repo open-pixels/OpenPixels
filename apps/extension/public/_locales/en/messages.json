@@ -1,0 +1,7 @@
+{
+  "name": { "message": "OpenPixels — free AI image upscaler, no upload" },
+  "description": {
+    "message": "Right-click any image to make it sharp: upscale to 8x, remove noise, restore faces, colourise old photos. Free, unlimited, and nothing leaves your browser."
+  },
+  "contextMenu": { "message": "Enhance this image with OpenPixels" }
+}
