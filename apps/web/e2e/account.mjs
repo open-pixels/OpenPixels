@@ -142,6 +142,23 @@ async function main() {
     check("the app origin is in the server's allowed_origins", false, e.message);
   }
 
+  // The auth host must accept its own /signin as a return_to. That is the
+  // flow an extension uses -- it cannot receive a cross-origin redirect, so
+  // it opens the server's page and takes the session back by postMessage --
+  // and the page sets return_to to its own origin. Without an
+  // `https://auth.<product>` entry in the server's allowed_origins the server
+  // refuses its own page with a 400, and nothing surfaces that until someone
+  // clicks Google and lands on a JSON error. It shipped exactly that way.
+  try {
+    const rt = encodeURIComponent(`${AUTH_HOST}/signin`);
+    const res = await fetch(`${AUTH_HOST}/v1/auth/oidc/google/start?return_to=${rt}`,
+      { redirect: "manual" });
+    check("the auth host accepts its own /signin as a return_to",
+      res.status === 307, `HTTP ${res.status}`);
+  } catch (e) {
+    check("the auth host accepts its own /signin as a return_to", false, e.message);
+  }
+
   let methods = {};
   try {
     methods = (await (await fetch(`${AUTH_HOST}/v1/auth/methods`)).json())?.methods ?? {};
