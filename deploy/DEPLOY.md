@@ -1,6 +1,19 @@
 # Deploying OpenPixels
 
-Two hostnames on one host (`104.36.65.54`), and they are different things:
+`$DEPLOY_HOST` throughout is the web host, and it is deliberately not written
+down here. This repository is public and the host it deploys to also serves
+several unrelated services; naming it in public would tie this repo to that
+box, confirm the login it uses, and hand over the filesystem layout, for no
+benefit to anyone reading the runbook. Set it in your shell:
+
+```sh
+export DEPLOY_HOST=<the host>
+```
+
+Everything below is the part that is genuinely worth writing down: what breaks,
+and why it breaks silently.
+
+Two hostnames on one host, and they are different things:
 
 | | | |
 |---|---|---|
@@ -28,8 +41,8 @@ checksums short-circuit it.
 ## Publish
 
 ```sh
-rsync -rlt --delete apps/web/dist/ root@104.36.65.54:/var/www/openpixels-app/
-rsync -rlt --delete website/       root@104.36.65.54:/var/www/openpixels-site/
+rsync -rlt --delete apps/web/dist/ root@$DEPLOY_HOST:/var/www/openpixels-app/
+rsync -rlt --delete website/       root@$DEPLOY_HOST:/var/www/openpixels-site/
 ```
 
 **Use `-rlt`, not `-a`, and no `--info=`.** macOS ships rsync 2.6.9
@@ -43,10 +56,10 @@ code.
 Three files in `deploy/`, copied to the server:
 
 ```sh
-scp deploy/openpixels-security.conf   root@104.36.65.54:/etc/nginx/snippets/
-scp deploy/openpixels.app.conf        root@104.36.65.54:/etc/nginx/sites-available/openpixels.app
-scp deploy/app.openpixels.app.conf    root@104.36.65.54:/etc/nginx/sites-available/app.openpixels.app
-ssh root@104.36.65.54 'nginx -t && systemctl reload nginx'
+scp deploy/openpixels-security.conf   root@$DEPLOY_HOST:/etc/nginx/snippets/
+scp deploy/openpixels.app.conf        root@$DEPLOY_HOST:/etc/nginx/sites-available/openpixels.app
+scp deploy/app.openpixels.app.conf    root@$DEPLOY_HOST:/etc/nginx/sites-available/app.openpixels.app
+ssh root@$DEPLOY_HOST 'nginx -t && systemctl reload nginx'
 ```
 
 Those two server-block files are **bootstrap templates, not backups**. Once
@@ -55,7 +68,7 @@ redirect blocks in the live files, and they exist only on the server. Diff
 before you ever copy over a live one:
 
 ```sh
-ssh root@104.36.65.54 'cat /etc/nginx/sites-available/openpixels.app' \
+ssh root@$DEPLOY_HOST 'cat /etc/nginx/sites-available/openpixels.app' \
   | diff - deploy/openpixels.app.conf
 ```
 
@@ -128,7 +141,7 @@ violation, failed request or page error. Point it elsewhere with
 
 ## DNS
 
-`@`, `www` and `app` are A records to `104.36.65.54`, managed at Namecheap.
+`@`, `www` and `app` are A records to `$DEPLOY_HOST`, managed at Namecheap.
 
 **Watch for a leftover URL-redirect record on `@`.** A parked domain carries
 one, it is invisible to the Namecheap API (it comes back only as
@@ -142,7 +155,7 @@ refuse to fall back to HTTP. Half of all visits fail, intermittently, which
 is the worst way for it to fail.
 
 ```sh
-dig +short openpixels.app A      # must be exactly 104.36.65.54, one line
+dig +short openpixels.app A      # must be exactly $DEPLOY_HOST, one line
 ```
 
 ## What a visitor downloads
