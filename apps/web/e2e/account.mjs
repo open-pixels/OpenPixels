@@ -284,11 +284,19 @@ async function main() {
 
     // The header carries the mark as well as the wordmark, so the app and the
     // marketing site look like the same product.
+    // Inline SVG, not an <img>: the extension bundles this component and
+    // serves it from a package with no icons/ directory, so a file reference
+    // resolved on the web and 404ed there. Assert it is painted, which is
+    // true for either form and false for a mark that failed to load.
     const brand = await page.evaluate(() => {
-      const i = document.querySelector("header .brandmark");
-      return i ? { ok: i.complete && i.naturalWidth > 0, src: i.getAttribute("src") } : null;
+      const el = document.querySelector("header .brandmark");
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return { tag: el.tagName.toLowerCase(), w: Math.round(r.width), h: Math.round(r.height) };
     });
-    check("the app header shows the logo", brand?.ok === true, brand ? brand.src : "absent");
+    check("the app header shows the logo",
+      brand !== null && brand.w > 8 && brand.h > 8,
+      brand ? `<${brand.tag}> ${brand.w}x${brand.h}` : "absent");
 
     // The wordmark is one word. It broke into "Open Pixels" when the brand
     // button became flex to seat the logo: `<span>Open</span>Pixels` is two

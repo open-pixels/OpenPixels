@@ -103,6 +103,7 @@ async function main() {
 
   const errors = [];
   const notFound = [];
+  const failed = [];
   context.on("page", (p) => {
     p.on("pageerror", (e) => errors.push(String(e)));
     p.on("console", (m) => {
@@ -110,6 +111,14 @@ async function main() {
     });
     p.on("response", (r) => {
       if (r.status() >= 400) notFound.push(`${r.status()} ${r.url()}`);
+    });
+    // A missing chrome-extension:// file produces no response at all, so the
+    // listener above never sees it and "nothing 404ed" passes while the page
+    // is visibly broken. The console says only "Failed to load resource:
+    // net::ERR_FILE_NOT_FOUND", with no URL -- which is a failure that tells
+    // you a file is missing and refuses to say which. This carries the URL.
+    p.on("requestfailed", (r) => {
+      failed.push(`${r.url()} (${r.failure()?.errorText ?? "unknown"})`);
     });
   });
 
@@ -230,7 +239,13 @@ async function main() {
     check("the worker can fetch a page's image", claimed.ok && claimed.type.startsWith("image/"), `${claimed.bytes} bytes`);
 
     check("nothing 404ed", notFound.length === 0, notFound.slice(0, 3).join(" | "));
-    check("no page errors", errors.length === 0, errors.slice(0, 2).join(" | "));
+    // Report the URLs, not just the browser's opaque message: `failed` names
+    // the file, `errors` is what the console said about it.
+    check(
+      "no page errors",
+      errors.length === 0 && failed.length === 0,
+      [...new Set(failed)].slice(0, 4).join(" | ") || errors.slice(0, 2).join(" | "),
+    );
   } finally {
     if (!headed) await context.close();
     server.close();

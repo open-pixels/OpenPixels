@@ -151,11 +151,26 @@
 <header class="topbar">
   <button class="brand" onclick={() => go("home")}>
     <!--
-      The mark, not just the wordmark. The marketing site's header carries
+      The mark, not just the wordmark: the marketing site's header carries
       both and the app's carried only the words, so the two did not look like
-      the same product. Same file the tab icon uses.
+      the same product.
+
+      INLINE, not <img src="./icons/favicon.svg">. This component is shared —
+      the extension bundles apps/web/src through Vite aliases and serves it
+      from its own package, which has no icons/ directory, so the file
+      resolved in the web build and 404ed in the extension. It failed as a
+      bare "net::ERR_FILE_NOT_FOUND" with no URL attached, which is a
+      miserable thing to trace back to a header.
+
+      Inlining also matches what Icon.svelte already does, and for the same
+      reason: an asset that can fail to load is an asset that will disappear
+      exactly when this app claims to still work offline.
     -->
-    <img class="brandmark" src="./icons/favicon.svg" alt="" width="20" height="20" />
+    <svg class="brandmark" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <rect width="24" height="24" rx="5.3" fill="#111" />
+      <path d="M11 5.2l1.85 4.45L17.3 11.5l-4.45 1.85L11 17.8l-1.85-4.45L4.7 11.5l4.45-1.85L11 5.2z" fill="#fff" />
+      <path d="M17.9 15.1l.66 1.57 1.57.66-1.57.66-.66 1.57-.66-1.57-1.57-.66 1.57-.66.66-1.57z" fill="#fff" />
+    </svg>
     <!--
       The wordmark is ONE flex item, not two. Left as `<span>Open</span>Pixels`
       the bare text becomes an anonymous flex item of its own, and the button's
