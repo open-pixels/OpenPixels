@@ -156,7 +156,13 @@
       the same product. Same file the tab icon uses.
     -->
     <img class="brandmark" src="./icons/favicon.svg" alt="" width="20" height="20" />
-    <span class="op">Open</span>Pixels
+    <!--
+      The wordmark is ONE flex item, not two. Left as `<span>Open</span>Pixels`
+      the bare text becomes an anonymous flex item of its own, and the button's
+      `gap` -- which exists to separate the mark from the words -- lands
+      between "Open" and "Pixels" as well. It rendered as "Open Pixels".
+    -->
+    <span class="wordmark"><span class="op">Open</span>Pixels</span>
   </button>
 
   {#if route !== "home"}

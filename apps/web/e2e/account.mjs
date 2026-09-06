@@ -290,6 +290,28 @@ async function main() {
     });
     check("the app header shows the logo", brand?.ok === true, brand ? brand.src : "absent");
 
+    // The wordmark is one word. It broke into "Open Pixels" when the brand
+    // button became flex to seat the logo: `<span>Open</span>Pixels` is two
+    // flex items -- the bare text node is an anonymous one -- so the button's
+    // `gap`, meant to separate the mark from the words, landed inside the
+    // name too. Measured rather than read, because innerText normalises
+    // whitespace and would have reported "OpenPixels" either way.
+    const wordmark = await page.evaluate(() => {
+      const brandEl = document.querySelector("header .brand");
+      const op = document.querySelector("header .op");
+      if (!brandEl || !op) return null;
+      const r = new Range();
+      r.setStartAfter(op);
+      r.setEndAfter(op.parentNode.lastChild);
+      return {
+        text: brandEl.innerText.replace(/\s+/g, " ").trim(),
+        gap: +(r.getBoundingClientRect().left - op.getBoundingClientRect().right).toFixed(2),
+      };
+    });
+    check("the wordmark reads OpenPixels with no gap",
+      wordmark !== null && wordmark.gap < 0.5,
+      wordmark ? `"${wordmark.text}", ${wordmark.gap}px between the halves` : "not found");
+
     // ---- 3c. The sign-in return trip ------------------------------------
     //
     // This is the regression test for the bug that made sign-in silently
