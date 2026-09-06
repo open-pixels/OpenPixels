@@ -60,6 +60,46 @@ export const OPENAPPS_GATEWAY_URL = "https://gateway.openpixels.app";
 /** The SDK's own default session key, restated so callers can watch for it. */
 export const SESSION_STORAGE_KEY = "openapps.session";
 
+/**
+ * Is this page load the tail end of a sign-in?
+ *
+ * THE WHOLE "I CANNOT SIGN IN" BUG LIVED HERE.
+ *
+ * The session is only ever picked up by the SDK's `completeRedirect()`, which
+ * runs from the login component's `connectedCallback`. Called with no
+ * arguments — which is how the component calls it — it looks for the code in
+ * `location.hash` and **nowhere else**; it never reads `location.search`.
+ *
+ * So the provider sends the browser back to `https://app.openpixels.app/#code=…`,
+ * and this app is a hash router. It read `code=…` as a route name, matched
+ * nothing, and fell through to Home — where no account component mounts, so
+ * `completeRedirect()` was never called and the code sat unread in the address
+ * bar. Every visible part of the flow worked: the redirect out, Google, the
+ * redirect back. Only the last step was missing, and it failed silently.
+ *
+ * Hence: detect the return *before* the router picks a view.
+ *
+ * `?account=1` is a second, unrelated entry point — a plain link to the
+ * account screen that survives the server's "return_to must not contain a
+ * fragment" rule. It is not how a sign-in comes back.
+ */
+export function isSignInReturn(hash = location.hash, search = location.search) {
+  const inHash = new URLSearchParams(hash.replace(/^#/, ""));
+  if (inHash.has("code")) return true;
+  return new URLSearchParams(search).has("account");
+}
+
+/**
+ * The provider's code arrives in the fragment, and the SDK deletes it once it
+ * has been exchanged. That empties the hash, which fires `hashchange`, which
+ * would send a just-signed-in visitor back to Home. Callers use this to keep
+ * the account view put across that one transition.
+ */
+export function isConsumedSignInReturn(hash = location.hash) {
+  return hash === "" || hash === "#";
+}
+
+
 let configured = false;
 
 /**

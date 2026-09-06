@@ -9,6 +9,7 @@
   import Models from "$views/Models.svelte";
   import About from "$views/About.svelte";
   import Account from "$views/Account.svelte";
+  import { isSignInReturn, isConsumedSignInReturn } from "$lib/openapps.js";
 
   /*
     `incoming` is how a host hands this app a photo it already has. The web
@@ -24,7 +25,18 @@
     screens, one of which holds all the state; anything more is a dependency
     to keep current for no benefit.
   */
-  let route = $state(parse(location.hash));
+  /*
+    The sign-in return overrides the hash.
+
+    A provider sends the browser back to `/?code=...` — a query, because the
+    server refuses a `return_to` containing a fragment, and this app's own
+    URLs are all fragments. So the returning page has no hash at all and
+    would otherwise render Home, where nothing account-related mounts and the
+    code in the address bar is never exchanged. That was the "I cannot sign
+    in" bug, and it is fixed here rather than in the account view, because by
+    the time a view is chosen it is already too late.
+  */
+  let route = $state(isSignInReturn() ? "account" : parse(location.hash));
   function parse(hash) {
     const name = hash.replace(/^#\/?/, "").split("/")[0];
     return name || "home";
@@ -33,8 +45,33 @@
     location.hash = `#/${name}`;
   }
 
+  /*
+    One transition needs holding: the SDK deletes the provider's code from the
+    fragment the moment it exchanges it, which empties the hash and fires
+    `hashchange`. Following that would drop a visitor who has just signed in
+    back onto Home. So the first empty hash after a sign-in return is
+    rewritten to this view rather than followed.
+  */
+  let holdAccount = $state(isSignInReturn());
   $effect(() => {
-    const on = () => (route = parse(location.hash));
+    const on = () => {
+      // A code can also arrive by hash change rather than a fresh load.
+      // Coming back from a provider is a full navigation, so the startup
+      // check is the one that normally fires — but an in-page hash change
+      // carrying a code must not be read as a route name and dropped.
+      if (isSignInReturn()) {
+        holdAccount = true;
+        route = "account";
+        return;
+      }
+      if (holdAccount && isConsumedSignInReturn()) {
+        holdAccount = false;
+        location.hash = "#/account";
+        return;
+      }
+      holdAccount = false;
+      route = parse(location.hash);
+    };
     addEventListener("hashchange", on);
     return () => removeEventListener("hashchange", on);
   });
@@ -122,6 +159,16 @@
     </button>
   {/if}
 
+  <button
+    class="linkish account"
+    class:on={route === "account"}
+    onclick={() => go("account")}
+    aria-label={$t("nav.account")}
+    title={$t("nav.account")}
+  >
+    <Icon name="user" size={18} />
+  </button>
+
   <label class="lang">
     <Icon name="globe" size={15} />
     <span class="sr-only">Language</span>
@@ -168,6 +215,23 @@
     cursor: pointer;
     padding: var(--space-1);
     display: inline-flex;
+  }
+  /*
+    The account control lives here and only here. It used to be a text link
+    in the footer of two screens, which is where a reader looks last and
+    where nobody looks for an account. Top right is where every application
+    on the web puts it, and being in the sticky header means it is reachable
+    from every screen rather than the two that happened to list it.
+  */
+  .account {
+    border-radius: var(--radius-full, 999px);
+  }
+  .account:hover {
+    color: var(--text-strong);
+  }
+  .account.on {
+    color: var(--text-strong);
+    background: var(--surface-sunken, rgba(0, 0, 0, 0.05));
   }
   .lang {
     display: inline-flex;

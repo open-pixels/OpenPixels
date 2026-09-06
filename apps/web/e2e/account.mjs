@@ -213,6 +213,76 @@ async function main() {
     check("no CSP violations on the account page", csp.length === 0, csp[0] ?? "");
     check("no page errors on the account page", errors.length === 0, errors[0] ?? "");
 
+    // ---- 3b. The account entry point, and the branding ------------------
+    //
+    // The control belongs top right in the sticky header, on every screen.
+    // It began as a text link in two footers, which is where a reader looks
+    // last and where nobody looks for an account.
+    console.log("entry point and branding:");
+    for (const r of ["", "#/account", "#/about"]) {
+      await page.goto(`${HOST}/${r}`, { waitUntil: "load" });
+      await page.waitForTimeout(900);
+      const placed = await page.evaluate(() => {
+        const el = document.querySelector("header .account");
+        if (!el) return null;
+        const b = el.getBoundingClientRect();
+        return b.right > innerWidth / 2 && b.top < 80;
+      });
+      check(`the account control is top-right on "${r || "home"}"`, placed === true);
+    }
+    const inFooter = await page.evaluate(
+      () => /account/i.test(document.querySelector("nav.footer")?.innerText ?? ""));
+    check("no account link left in a footer", !inFooter);
+
+    // The shared backend is plumbing, not a brand to introduce to someone who
+    // installed a photo enhancer. The login panel ships its own "Sign in to
+    // OpenApps" header inside shadow DOM, so this walks shadow roots too.
+    await page.goto(`${HOST}/#/account`, { waitUntil: "load" });
+    await page.waitForTimeout(3500);
+    const leaked = await page.evaluate(() => {
+      const out = [];
+      const scan = (root, where) => {
+        for (const el of root.querySelectorAll("*")) {
+          if (el.shadowRoot) scan(el.shadowRoot, `${where}>${el.tagName.toLowerCase()}`);
+          if (el.children.length === 0 && /openapps/i.test(el.textContent)) {
+            const st = getComputedStyle(el);
+            if (st.display !== "none" && st.visibility !== "hidden" && el.getClientRects().length)
+              out.push(`${where} :: ${el.textContent.trim().slice(0, 60)}`);
+          }
+        }
+      };
+      scan(document, "doc");
+      return out;
+    });
+    check("no visible \"OpenApps\" anywhere on the account page", leaked.length === 0, leaked.join(" | "));
+
+    // ---- 3c. The sign-in return trip ------------------------------------
+    //
+    // This is the regression test for the bug that made sign-in silently
+    // impossible. `completeRedirect()` reads the code from `location.hash`
+    // and never from `location.search`, so the provider's return lands on a
+    // fragment — which a hash router reads as a route name, matching nothing
+    // and falling through to Home, where no account component mounts and the
+    // code is never exchanged. Everything visible worked; only the last step
+    // was missing.
+    console.log("sign-in return:");
+    // A FRESH PAGE, deliberately. Coming back from a provider is a full
+    // cross-origin navigation, so the login element mounts from scratch and
+    // its connectedCallback runs completeRedirect(). Reusing the page above
+    // would only change the hash, leaving the element already mounted and
+    // completeRedirect never re-run — which fails for a reason that exists
+    // nowhere in the real flow.
+    const fresh = await browser.newPage({ viewport: { width: 430, height: 932 } });
+    const exchanges = [];
+    fresh.on("request", (r) => { if (/\/auth\/oidc\/exchange/.test(r.url())) exchanges.push(r.url()); });
+    await fresh.goto(`${HOST}/#code=not-a-real-code`, { waitUntil: "load" });
+    await fresh.waitForTimeout(4500);
+    check("a returning #code= reaches the account view",
+      (await fresh.locator('[data-testid="account-panel"]').count()) === 1);
+    check("a returning #code= is actually exchanged",
+      exchanges.length > 0, exchanges.length ? "POST /v1/auth/oidc/exchange" : "never exchanged");
+    await fresh.close();
+
     // ---- 4. Nothing regressed on the rest of the app ---------------------
     console.log("the rest of the app:");
     const requests = [];
