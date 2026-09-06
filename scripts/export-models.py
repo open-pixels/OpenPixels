@@ -289,8 +289,29 @@ def main() -> None:
             block=("Cast", "Clip"),
         )
     else:
-        print("DeOldify artistic — copying at full precision")
-        shutil.copyfile(src / "deoldify_artistic.onnx", out / "deoldify_artistic.onnx")
+        # DeOldify is the one model that is *not* converted here: it is shipped
+        # exactly as downloaded, so fetch-models.sh puts it straight into the
+        # output directory as a DIRECT entry and never fetches it into --src.
+        #
+        # This used to copy it from --src unconditionally, which worked on any
+        # machine that happened to have a stale copy there and failed on every
+        # clean checkout — CI included — with a bare FileNotFoundError three
+        # frames deep in shutil. Both locations are checked now, and the error
+        # says where the file is meant to come from.
+        dst = out / "deoldify_artistic.onnx"
+        upstream = src / "deoldify_artistic.onnx"
+        if upstream.exists():
+            print("DeOldify artistic — copying at full precision")
+            shutil.copyfile(upstream, dst)
+        elif dst.exists():
+            print("DeOldify artistic — already in place, shipped as downloaded")
+        else:
+            raise SystemExit(
+                f"deoldify_artistic.onnx is in neither {upstream} nor {dst}.\n"
+                "It is downloaded rather than converted — run "
+                "apps/web/scripts/fetch-models.sh, which fetches it as a DIRECT "
+                "entry straight into the models directory."
+            )
 
     manifest = {
         p.name: {"bytes": p.stat().st_size, "sha256": sha256(p)}
