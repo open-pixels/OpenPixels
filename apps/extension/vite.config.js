@@ -30,7 +30,18 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      $tokens: fileURLToPath(new URL("../../../tokens", import.meta.url)),
+      // The vendored design tokens, inside this repository.
+      //
+      // This pointed at ../../../tokens while the app lived in the monorepo,
+      // which resolves *above* the repository root — so a clone could not
+      // build. apps/web was fixed when the tokens were vendored; this file
+      // was missed, and CI could not report it because the extension job is
+      // gated on the web job, which was failing for an unrelated reason. The
+      // moment that was fixed, this surfaced.
+      //
+      // Every other alias here already points into ../web; this one now does
+      // too, at the same directory apps/web/vite.config.js uses.
+      $tokens: fileURLToPath(new URL("../web/src/vendor/openapps", import.meta.url)),
       $web: fileURLToPath(new URL("../web/src", import.meta.url)),
       $lib: fileURLToPath(new URL("../web/src/lib", import.meta.url)),
       $ui: fileURLToPath(new URL("../web/src/ui", import.meta.url)),
