@@ -150,6 +150,12 @@
 
 <header class="topbar">
   <button class="brand" onclick={() => go("home")}>
+    <!--
+      The mark, not just the wordmark. The marketing site's header carries
+      both and the app's carried only the words, so the two did not look like
+      the same product. Same file the tab icon uses.
+    -->
+    <img class="brandmark" src="./icons/favicon.svg" alt="" width="20" height="20" />
     <span class="op">Open</span>Pixels
   </button>
 
@@ -223,6 +229,12 @@
     on the web puts it, and being in the sticky header means it is reachable
     from every screen rather than the two that happened to list it.
   */
+  .brandmark {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    display: block;
+  }
   .account {
     border-radius: var(--radius-full, 999px);
   }

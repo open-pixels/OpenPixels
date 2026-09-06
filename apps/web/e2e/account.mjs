@@ -256,6 +256,23 @@ async function main() {
     });
     check("no visible \"OpenApps\" anywhere on the account page", leaked.length === 0, leaked.join(" | "));
 
+    // The panel's mark is a String property rendered as text, so the product
+    // mark has to be one character. The default is "O" for OpenApps and the
+    // first attempt here was a bare "P", which read as a placeholder because
+    // it was one. U+2726 is the same sparkle as icons/favicon.svg.
+    const mark = await page.evaluate(() =>
+      document.querySelector("openapps-login")?.shadowRoot?.querySelector(".mark")?.textContent?.trim());
+    check("the sign-in panel carries the product mark, not a letter",
+      mark === "\u2726", JSON.stringify(mark));
+
+    // The header carries the mark as well as the wordmark, so the app and the
+    // marketing site look like the same product.
+    const brand = await page.evaluate(() => {
+      const i = document.querySelector("header .brandmark");
+      return i ? { ok: i.complete && i.naturalWidth > 0, src: i.getAttribute("src") } : null;
+    });
+    check("the app header shows the logo", brand?.ok === true, brand ? brand.src : "absent");
+
     // ---- 3c. The sign-in return trip ------------------------------------
     //
     // This is the regression test for the bug that made sign-in silently

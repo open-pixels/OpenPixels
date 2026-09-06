@@ -100,7 +100,7 @@
       -->
       <openapps-login
         variant="panel"
-        mark="P"
+        mark="✦"
         heading={$t("account.signin.title")}
         description={$t("account.signin.body")}
       ></openapps-login>

@@ -39,6 +39,11 @@ body {
   cursor: pointer;
   padding: 0;
   font-size: 1rem;
+  /* The mark sits beside the wordmark; without this the button is inline and
+     the image drops onto its own baseline. */
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
 }
 .topbar .brand .op {
   color: var(--text-faint);
