@@ -14,7 +14,8 @@
     "features": "node e2e/features.mjs",
     "verify:prod": "node e2e/verify-prod.mjs",
     "test:account": "node e2e/account.mjs",
-    "serve": "bash scripts/serve.sh"
+    "serve": "bash scripts/serve.sh",
+    "capture": "node e2e/capture.mjs"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.0.0",

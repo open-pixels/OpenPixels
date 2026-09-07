@@ -5,6 +5,27 @@
    this audience arrives on a phone, and §八 ⑤ found that no competitor has
    treated the mobile browser as the primary target rather than a fallback. */
 
+/* The design system's dark palette lives under `.oa-auto` (follow the OS)
+   and `.oa-dark` (force it) — never on bare `:root`. Every entry HTML
+   therefore carries `class="oa-auto"` on <html>, without which the app is
+   permanently light no matter what the OS says, which is what it was: the
+   `theme-color` meta tags declared a dark colour the page could not reach.
+
+   `color-scheme` is the other half. It is what tells the browser to paint
+   the scrollbars, the file picker and the native form controls dark; the
+   custom properties above have no effect on any of them. */
+:root {
+  color-scheme: light;
+}
+:root.oa-dark {
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root.oa-auto {
+    color-scheme: dark;
+  }
+}
+
 body {
   background: var(--bg-page);
   /* Room for the iOS home indicator and the Android gesture bar. */

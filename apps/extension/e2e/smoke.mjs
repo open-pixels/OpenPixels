@@ -26,7 +26,11 @@ const extDir = dirname(here);
 const dist = join(extDir, "dist");
 const models = join(extDir, "..", "..", ".vendor", "models");
 const OUT = join(here, "output");
-const PORT = 8097;
+// The port is asked for, not chosen. A hard-coded one collides with whatever
+// else on this machine happens to hold it — 8099 belongs to opensender-signal
+// — and the collision surfaces as an EADDRINUSE crash that any `| tail` in a
+// pipeline reports as a clean exit 0. Set E2E_PORT to pin it.
+let PORT = Number(process.env.E2E_PORT ?? 0);
 const headed = process.argv.includes("--headed");
 
 const checks = [];
@@ -72,7 +76,10 @@ function serve() {
     }
     res.writeHead(404).end("not found");
   });
-  return new Promise((resolve) => server.listen(PORT, () => resolve(server)));
+  return new Promise((resolve) => server.listen(PORT, () => {
+    PORT = server.address().port;
+    resolve(server);
+  }));
 }
 
 async function main() {

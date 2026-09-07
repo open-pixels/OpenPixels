@@ -31,11 +31,12 @@
   */
   import { t } from "$lib/i18n.js";
   import Icon from "$ui/Icon.svelte";
-  import { ensureConfigured, OPENAPPS_BASE_URL } from "$lib/openapps.js";
+  import { ensureConfigured, isSignedIn, onSessionChange, OPENAPPS_BASE_URL } from "$lib/openapps.js";
 
   let { go } = $props();
 
   let state = $state("loading"); // loading | ready | failed
+  let signedIn = $state(false);
 
   $effect(() => {
     let cancelled = false;
@@ -43,6 +44,23 @@
       .then(() => !cancelled && (state = "ready"))
       .catch(() => !cancelled && (state = "failed"));
     return () => (cancelled = true);
+  });
+
+  /*
+    Whether there is a session, watched rather than read once: the sign-in
+    completes without a navigation, so a value read at mount would still say
+    "signed out" while the panel above it says otherwise.
+  */
+  $effect(() => {
+    let stop;
+    let cancelled = false;
+    const sync = () => isSignedIn().then((v) => !cancelled && (signedIn = v));
+    sync();
+    onSessionChange(sync).then((off) => (cancelled ? off?.() : (stop = off)));
+    return () => {
+      cancelled = true;
+      stop?.();
+    };
   });
 
 </script>
@@ -104,16 +122,27 @@
         heading={$t("account.signin.title")}
         description={$t("account.signin.body")}
       ></openapps-login>
-      <openapps-credits poll-seconds="30"></openapps-credits>
-      <openapps-account></openapps-account>
-      <openapps-buy></openapps-buy>
       <!--
-        Unscoped deliberately. The balance is shared across every OpenApps
-        app, so filtering to this one would leave someone looking at a
-        number that dropped for reasons this page refuses to name.
+        Only once there is a session. Signed out, each of these renders its
+        own placeholder — "Sign in to manage your account.", "Sign in to buy
+        credits.", "Sign in to see where your credits went." — so the page
+        asked four more times, in a tall empty card, directly under a panel
+        whose entire job is to ask once. <openapps-signout> already hides
+        itself when there is nobody to sign out, which is the behaviour the
+        other four are missing.
       -->
-      <openapps-history></openapps-history>
-      <openapps-signout></openapps-signout>
+      {#if signedIn}
+        <openapps-credits poll-seconds="30"></openapps-credits>
+        <openapps-account></openapps-account>
+        <openapps-buy></openapps-buy>
+        <!--
+          Unscoped deliberately. The balance is shared across every app in
+          the suite, so filtering to this one would leave someone looking at
+          a number that dropped for reasons this page refuses to name.
+        -->
+        <openapps-history></openapps-history>
+        <openapps-signout></openapps-signout>
+      {/if}
     </div>
   {/if}
 

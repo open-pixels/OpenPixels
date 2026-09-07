@@ -68,7 +68,21 @@ pub struct TilePlan {
 /// the final tile is full-width rather than a sliver — overlapping its
 /// neighbour more, which the merge already handles, and costing far less
 /// padding.
-fn starts(length: u32, tile: u32) -> Vec<u32> {
+///
+/// It is pulled back only when it has somewhere to go. An axis a few pixels
+/// longer than a whole number of tiles — 257 against a 128 tile — would
+/// otherwise get a start one pixel past the previous one, and two tiles
+/// covering the same pixels at full weight. That is not merely wasteful (a
+/// whole redundant forward pass): the merger's weight sums are `u16` and
+/// sized for the four tiles that meet at a corner, and a duplicate pushes
+/// the per-axis weight to nearly 3, so a white pixel accumulates past
+/// 65,535 and saturates. A uniform white 257×257 image came back with a
+/// grey cross through it, 127 counts deep. `overlap` is what makes the
+/// pull-back unnecessary here: the previous tile is *expanded* by it
+/// already, so when the remainder is no larger than the overlap that tile
+/// reaches the far edge on its own, with a full-weight border and real
+/// pixels rather than replicated ones.
+fn starts(length: u32, tile: u32, overlap: u32) -> Vec<u32> {
     if length <= tile {
         return vec![0];
     }
@@ -78,7 +92,10 @@ fn starts(length: u32, tile: u32) -> Vec<u32> {
         out.push(x);
         x += tile;
     }
-    out.push(length - tile);
+    let last = length - tile;
+    if out.last().is_none_or(|&prev| last > prev + overlap) {
+        out.push(last);
+    }
     out
 }
 
@@ -89,9 +106,9 @@ fn starts(length: u32, tile: u32) -> Vec<u32> {
 pub fn plan(width: u32, height: u32, tile: u32, overlap: u32) -> TilePlan {
     let tile = tile.max(16);
     let mut tiles = Vec::new();
-    for &y in &starts(height, tile) {
+    for &y in &starts(height, tile, overlap) {
         let core_h = tile.min(height - y);
-        for &x in &starts(width, tile) {
+        for &x in &starts(width, tile, overlap) {
             let core_w = tile.min(width - x);
             let x0 = x.saturating_sub(overlap);
             let y0 = y.saturating_sub(overlap);
@@ -417,6 +434,72 @@ mod tests {
             .max()
             .unwrap();
         assert!(max_err <= 1, "max error {max_err}");
+    }
+
+    /// The identity round trip again, but swept across the sizes where the
+    /// plan is degenerate rather than at one comfortable size.
+    ///
+    /// An axis a few pixels past a whole number of tiles used to plan a
+    /// duplicate tile, and two tiles at full weight over the same pixels
+    /// overflowed the merger's `u16` accumulator. White came back grey: at
+    /// 257×257 with a 128 tile the worst pixel was 127 counts dark, in a
+    /// cross through the image. Every size here passed the old code's
+    /// coverage checks, and `identity_model_round_trips_exactly` sits at
+    /// 211×137, which is 19 past a tile boundary and clear of it.
+    ///
+    /// White specifically: the accumulator holds `value × weight × 64`, so
+    /// only a near-maximum value saturates. A mid-grey test image would
+    /// have merged perfectly and proved nothing.
+    #[test]
+    fn a_flat_white_image_survives_the_merge_at_every_size() {
+        for size in 250..=280u32 {
+            let img = Rgb::from_vec(size, size, vec![255u8; (size * size * 3) as usize]);
+            let p = plan(size, size, 128, 16);
+            let mut m = Merger::new(size, size);
+            for t in &p.tiles {
+                m.add(&p, t, 1, &extract(&img, t, p.pad));
+            }
+            let out = m.finish();
+            let worst = out.data.iter().map(|v| 255 - *v as i32).max().unwrap();
+            assert!(
+                worst <= 1,
+                "{size}x{size}: white merged to {} at worst, {} tiles",
+                255 - worst,
+                p.tiles.len()
+            );
+        }
+    }
+
+    /// No tile may repeat one already planned.
+    ///
+    /// The weight bound the merger's `u16` sums are sized for — four tiles
+    /// meeting at a corner — holds only if no two tiles are at full weight
+    /// over the same pixels. Every start must therefore clear the previous
+    /// one by more than the overlap, which is the margin by which the
+    /// previous tile is already expanded.
+    #[test]
+    fn no_tile_repeats_the_one_before_it() {
+        for tile in [64u32, 128, 192, 256] {
+            for overlap in [4u32, 8, 16] {
+                for length in 1..=(3 * tile + 40) {
+                    let s = starts(length, tile, overlap);
+                    for w in s.windows(2) {
+                        assert!(
+                            w[1] > w[0] + overlap,
+                            "length {length}, tile {tile}, overlap {overlap}: \
+                             starts {w:?} are within the overlap of each other"
+                        );
+                    }
+                    // Still covers: the last tile's expanded edge reaches
+                    // the end, which is the whole reason dropping it is safe.
+                    let last = *s.last().unwrap();
+                    assert!(
+                        last + tile + overlap >= length || length <= tile,
+                        "length {length}, tile {tile}: nothing reaches the far edge"
+                    );
+                }
+            }
+        }
     }
 
     /// A nearest-neighbour 2× "model" merged at scale 2 matches a direct

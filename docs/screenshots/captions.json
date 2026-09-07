@@ -1,0 +1,58 @@
+[
+  {
+    "name": "01-empty.png",
+    "note": "the landing state: one control, and the claim"
+  },
+  {
+    "name": "02-empty-dark.png",
+    "note": "the same screen in the dark theme"
+  },
+  {
+    "name": "03-studio.png",
+    "note": "a photo loaded; every option is on this one screen"
+  },
+  {
+    "name": "04-result.png",
+    "note": "2x upscale — 9.4x sharper"
+  },
+  {
+    "name": "05-numbers.png",
+    "note": "the measurements behind the claim — Before After Sharpness 58.15 546.86 Noise 1.404 1.428 PSNR 27.85 dB SSIM 0.9462"
+  },
+  {
+    "name": "06-result-dark.png",
+    "note": "the result in the dark theme — 9.4x sharper"
+  },
+  {
+    "name": "07-monochrome.png",
+    "note": "a black-and-white photo, detected from its chroma: colourisation offered"
+  },
+  {
+    "name": "08-colourised.png",
+    "note": "colourised — 7.5x sharper"
+  },
+  {
+    "name": "09-batch.png",
+    "note": "six photos in one pass, each with its own measurements"
+  },
+  {
+    "name": "10-models.png",
+    "note": "all nine models, with licence and checksum, downloadable"
+  },
+  {
+    "name": "11-about.png",
+    "note": "the pricing page, which states there is no paid tier"
+  },
+  {
+    "name": "12-account.png",
+    "note": "signing in is optional and gates nothing"
+  },
+  {
+    "name": "13-phone-studio.png",
+    "note": "the same screen at 400px, the viewport this was designed for"
+  },
+  {
+    "name": "14-phone-result.png",
+    "note": "a real upscale on a phone viewport — 9.4x sharper"
+  }
+]

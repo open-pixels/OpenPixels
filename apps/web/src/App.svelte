@@ -166,10 +166,17 @@
       reason: an asset that can fail to load is an asset that will disappear
       exactly when this app claims to still work offline.
     -->
+    <!--
+      The tile and the glyph are tokens, not hexes. Hardcoded #111 on #fff
+      is right in the light theme and invisible in the dark one — the tile
+      vanishes into the page and leaves a sparkle floating in space. The
+      inverse pair is exactly the flip the design system specifies for a
+      logo tile: near-black holding white, then white holding near-black.
+    -->
     <svg class="brandmark" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-      <rect width="24" height="24" rx="5.3" fill="#111" />
-      <path d="M11 5.2l1.85 4.45L17.3 11.5l-4.45 1.85L11 17.8l-1.85-4.45L4.7 11.5l4.45-1.85L11 5.2z" fill="#fff" />
-      <path d="M17.9 15.1l.66 1.57 1.57.66-1.57.66-.66 1.57-.66-1.57-1.57-.66 1.57-.66.66-1.57z" fill="#fff" />
+      <rect width="24" height="24" rx="5.3" fill="var(--surface-inverse)" />
+      <path d="M11 5.2l1.85 4.45L17.3 11.5l-4.45 1.85L11 17.8l-1.85-4.45L4.7 11.5l4.45-1.85L11 5.2z" fill="var(--text-inverse)" />
+      <path d="M17.9 15.1l.66 1.57 1.57.66-1.57.66-.66 1.57-.66-1.57-1.57-.66 1.57-.66.66-1.57z" fill="var(--text-inverse)" />
     </svg>
     <!--
       The wordmark is ONE flex item, not two. Left as `<span>Open</span>Pixels`
@@ -309,8 +316,10 @@
     padding: 0 var(--space-5);
     border: 0;
     border-radius: var(--radius-md);
-    background: var(--gray-950);
-    color: var(--gray-0);
+    /* The inverse pair, as with every other primary action — a raw
+       `--gray-950` is invisible against a dark page. */
+    background: var(--surface-inverse);
+    color: var(--text-inverse);
     font: inherit;
     font-weight: var(--weight-medium);
     cursor: pointer;

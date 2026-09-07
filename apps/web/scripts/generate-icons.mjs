@@ -108,18 +108,64 @@ function crc32(buf) {
   return (c ^ 0xffffffff) >>> 0;
 }
 
+/**
+ * An ICO holding several sizes.
+ *
+ * This is the file a browser fetches from the site root when it does not
+ * read the `<link>` tags, and the one several link-preview crawlers fetch
+ * without parsing the HTML at all. Shipping only an SVG is why a tab comes
+ * up blank — and on this app it was worse than blank: the SPA fallback
+ * answered `/favicon.ico` with `200 text/html`, handing every one of those
+ * clients an HTML document labelled as an icon.
+ *
+ * The entries are PNGs, which every ICO reader since Vista accepts and
+ * which keeps this file free of a second encoder. Sizes are one byte, and
+ * 256 is encoded as 0; nothing else about the container is subtle.
+ */
+function ico(sizes) {
+  const images = sizes.map((size) => ({ size, body: png(size, drawIcon(size)) }));
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0); // reserved
+  header.writeUInt16LE(1, 2); // type: icon
+  header.writeUInt16LE(images.length, 4);
+  let offset = 6 + 16 * images.length;
+  const entries = [];
+  for (const { size, body } of images) {
+    const e = Buffer.alloc(16);
+    e[0] = size >= 256 ? 0 : size;
+    e[1] = size >= 256 ? 0 : size;
+    e[2] = 0; // palette
+    e[3] = 0; // reserved
+    e.writeUInt16LE(1, 4); // colour planes
+    e.writeUInt16LE(32, 6); // bits per pixel
+    e.writeUInt32BE(0, 8);
+    e.writeUInt32LE(body.length, 8);
+    e.writeUInt32LE(offset, 12);
+    entries.push(e);
+    offset += body.length;
+  }
+  return Buffer.concat([header, ...entries, ...images.map((i) => i.body)]);
+}
+
 for (const [name, size, opts] of [
   ["icon-192.png", 192, {}],
   ["icon-512.png", 512, {}],
   ["icon-maskable-512.png", 512, { maskable: true }],
   ["apple-touch-icon.png", 180, {}],
+  ["icon-180.png", 180, {}],
   ["icon-128.png", 128, {}],
   ["icon-48.png", 48, {}],
+  ["icon-32.png", 32, {}],
   ["icon-16.png", 16, {}],
 ]) {
   writeFileSync(join(outDir, name), png(size, drawIcon(size, opts)));
   console.log(`  ${name}`);
 }
+
+// At the site root, not under icons/: that is the only path a client
+// looking for it will try.
+writeFileSync(join(dirname(outDir), "favicon.ico"), ico([16, 32, 48]));
+console.log("  ../favicon.ico");
 
 // The favicon, as SVG, so it stays crisp at any size a browser asks for.
 writeFileSync(

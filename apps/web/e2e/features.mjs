@@ -19,7 +19,11 @@ import { fileURLToPath } from "node:url";
 const here = dirname(fileURLToPath(import.meta.url));
 const DIST = join(here, "..", "dist");
 const OUT = join(here, "output-features");
-const PORT = 8096;
+// The port is asked for, not chosen. A hard-coded one collides with whatever
+// else on this machine happens to hold it — 8099 belongs to opensender-signal
+// — and the collision surfaces as an EADDRINUSE crash that any `| tail` in a
+// pipeline reports as a clean exit 0. Set E2E_PORT to pin it.
+let PORT = Number(process.env.E2E_PORT ?? 0);
 const headed = process.argv.includes("--headed");
 
 const TYPES = {
@@ -40,7 +44,10 @@ function serve() {
     res.writeHead(200, { "content-type": TYPES[extname(path)] ?? "application/octet-stream" });
     res.end(await readFile(path));
   });
-  return new Promise((r) => server.listen(PORT, () => r(server)));
+  return new Promise((r) => server.listen(PORT, () => {
+    PORT = server.address().port;
+    r(server);
+  }));
 }
 
 const checks = [];

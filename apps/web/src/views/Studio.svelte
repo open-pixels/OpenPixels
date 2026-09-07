@@ -279,7 +279,11 @@
   .bar span {
     display: block;
     height: 100%;
-    background: var(--gray-950);
+    /* The filled part of the progress bar, against a `--bg-sunken` track.
+       `--gray-950` is near-black in both themes and the track is black in
+       the dark one, so the bar disappeared during the one operation the
+       user is actually waiting on. */
+    background: var(--text-strong);
     border-radius: var(--radius-full);
     transition: width var(--duration-base) var(--ease-out);
   }

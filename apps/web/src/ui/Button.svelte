@@ -66,12 +66,18 @@
     padding: 0 var(--space-6);
     font-size: 1.05rem;
   }
+  /* The inverse *pair*, not two raw greys. `--gray-950` on `--gray-0` is
+     the right ink in the light theme and a near-black block on a near-black
+     page in the dark one: the primary action loses every bit of its
+     emphasis and reads as disabled. The semantic tokens flip — near-black
+     holding white, then white holding near-black — so the button stays the
+     most prominent thing on the screen either way. */
   .btn[data-variant="primary"] {
-    background: var(--gray-950);
-    color: var(--gray-0);
+    background: var(--surface-inverse);
+    color: var(--text-inverse);
   }
   .btn[data-variant="primary"]:hover:not(:disabled) {
-    background: var(--gray-800);
+    background: color-mix(in srgb, var(--surface-inverse) 86%, var(--bg-page));
   }
   .btn[data-variant="secondary"] {
     background: var(--surface-card);

@@ -18,3 +18,10 @@ thiserror = { workspace = true }
 # wasm only: src/wasm.rs is gated on target_arch = "wasm32".
 wasm-bindgen = { workspace = true }
 console_error_panic_hook = { workspace = true }
+
+# The example decodes a real photograph from disk. The library deliberately
+# takes `image` with no decoders — the browser decodes through
+# createImageBitmap, which also applies EXIF orientation — so the formats
+# live here, where only `cargo run --example` and `cargo test` see them.
+[dev-dependencies]
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp"] }

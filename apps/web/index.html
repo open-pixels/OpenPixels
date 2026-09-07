@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="oa-auto">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -10,14 +10,34 @@
     />
     <meta name="theme-color" content="#f2f2f2" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)" />
+    <!-- favicon.ico first, and from the root: it is what a browser fetches
+         when it does not read these tags, and what several link-preview
+         crawlers fetch without parsing the page at all. Absent, the SPA
+         fallback answered /favicon.ico with 200 text/html — an HTML
+         document served to every client that asked for an icon. -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="./icons/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="OpenPixels" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="OpenPixels" />
     <meta property="og:title" content="OpenPixels — free photo upscaler and restorer" />
     <meta property="og:description" content="Upscale, denoise, restore faces and colourise old photos. Free, no account, nothing uploaded." />
-    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://app.openpixels.app/" />
+    <!-- Absolute, always. A crawler has no page to resolve a relative path
+         against, and on Telegram a missing image usually takes the
+         description down with it — which is why "no preview" and "no
+         description" arrive together and read as one bug. -->
+    <meta property="og:image" content="https://app.openpixels.app/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="OpenPixels: a photo before and after enhancement, split down the middle." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://app.openpixels.app/og-image.png" />
   </head>
   <body>
     <div id="app"></div>

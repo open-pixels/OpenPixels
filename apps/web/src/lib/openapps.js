@@ -120,6 +120,25 @@ export async function ensureConfigured() {
   configured = true;
 }
 
+/**
+ * Subscribe to sign-in and sign-out. Returns an unsubscribe.
+ *
+ * The elements each carry their own signed-out placeholder — four separate
+ * "Sign in to …" lines, stacked, under a panel that already says it. The
+ * account page uses this to mount them only once there is a session.
+ */
+export async function onSessionChange(fn) {
+  await ensureConfigured();
+  const { onChange } = await import("../vendor/openapps/openapps-ui.js");
+  return onChange(fn);
+}
+
+/** Is there a session right now? */
+export async function isSignedIn() {
+  const c = await client();
+  return c?.isLoggedIn ?? false;
+}
+
 /** The live client, or null before {@link ensureConfigured} has run. */
 export async function client() {
   await ensureConfigured();

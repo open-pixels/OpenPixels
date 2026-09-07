@@ -36,7 +36,11 @@
     height: 24px;
     margin-top: 2px;
     border-radius: var(--radius-full);
-    background: var(--gray-300);
+    /* On/off has to read as on/off in both themes. The checked track was
+       `--gray-950`, which is the darkest thing available and therefore the
+       *least* prominent state on a dark page — the switch looked off when
+       it was on. */
+    background: var(--border-strong);
     position: relative;
     transition: background var(--duration-fast) var(--ease-standard);
   }
@@ -48,11 +52,11 @@
     width: 18px;
     height: 18px;
     border-radius: var(--radius-full);
-    background: var(--gray-0);
+    background: var(--text-inverse);
     transition: transform var(--duration-fast) var(--ease-standard);
   }
   input:checked + .box {
-    background: var(--gray-950);
+    background: var(--text-strong);
   }
   input:checked + .box::after {
     transform: translateX(16px);

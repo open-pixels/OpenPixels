@@ -30,7 +30,9 @@
   }
   input {
     width: 100%;
-    accent-color: var(--gray-950);
+    /* Flips with the theme; a near-black thumb on a near-black page is
+       findable only by feel. */
+    accent-color: var(--text-strong);
     /* A slider is a fiddly target on a phone; give the thumb room. */
     height: 32px;
   }
